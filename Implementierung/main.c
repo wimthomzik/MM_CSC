@@ -6,7 +6,7 @@
 
 // Usage messages
 const char* usage_msg =
-        "Usage: %s -a <Dateiname> -b <Dateiname> -o <Dateiname> [OPTIONS]\n"
+        "Usage: %s -a <filename> -b <filename> -o <filename> [OPTIONS]\n"
         "   or: %s -h             Show help message and optional arguments\n";
 
 // Help message
@@ -68,8 +68,8 @@ int main(int argc, char *argv[]) {
                 // Convert string to long
                 version = strtol(optarg, &endptr, 10);
                 // Check if conversion was successful
-                if (endptr == optarg || errno != 0 || *endptr != '\0') {
-                    fprintf(stderr, "Ungültige Version: %s\n", optarg);
+                if (endptr == optarg || errno != 0 || *endptr != '\0' || version < 0) {
+                    fprintf(stderr, "Invalid Version: %s\n", optarg);
                     print_usage(progName);
                     return 1;
                 }
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
                     benchmark = strtol(optarg, &endptr, 10);
                     // Check if conversion was successful
                     if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 1) {
-                        fprintf(stderr, "Ungültige Anzahl für Benchmark: %s\n", optarg);
+                        fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         print_usage(progName);
                         return 1;
                     }
@@ -110,14 +110,7 @@ int main(int argc, char *argv[]) {
 
     // Check if input and output files are set
     if (inputA == NULL || inputB == NULL || outputFile == NULL) {
-        fprintf(stderr, "Fehlende Eingabe- oder Ausgabedateien\n");
-        print_usage(progName);
-        return 1;
-    }
-
-    // Check if version is set
-    if (version < 0) {
-        fprintf(stderr, "Ungültige Version: %ld\n", version);
+        fprintf(stderr, "Missing input/output file\n");
         print_usage(progName);
         return 1;
     }
