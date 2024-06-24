@@ -1,3 +1,4 @@
-//
-// Created by Wim Thomzik on 24.06.24.
-//
+
+int main(int argc, char *argv[]) {
+    return 0;
+}
