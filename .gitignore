@@ -12,3 +12,8 @@
 # Allow Vortrag and its contents
 !Vortrag/
 !Vortrag/**
+
+# Ignore Build artifacts
+Implementierung/main.dSYM/**
+Implementierung/main
+Imprementierung/main.exe
