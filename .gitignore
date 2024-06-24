@@ -1,0 +1,14 @@
+# Ignore all files
+*
+
+# Un-ignore directories
+!*/
+!*/.gitkeep
+
+# Allow Implementierung and its contents
+!Implementierung/
+!Implementierung/**
+
+# Allow Vortrag and its contents
+!Vortrag/
+!Vortrag/**
