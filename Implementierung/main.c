@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <getopt.h>
+#include "csc_matrix_datastructure/csc_matrix.h"
+#include "csc_matrix_reader/csc_matrix_reader.h"
 
 // Usage messages
 const char* usage_msg =
@@ -44,7 +46,7 @@ int main(int argc, char *argv[]) {
     // Check if there are any arguments
     if (argc == 1) {
         print_usage(progName);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Variables for command line arguments
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
                 if (endptr == optarg || errno != 0 || *endptr != '\0' || version < 0) {
                     fprintf(stderr, "Invalid Version: %s\n", optarg);
                     print_usage(progName);
-                    return 1;
+                    return EXIT_FAILURE;
                 }
                 break;
             case 'B':
@@ -82,7 +84,7 @@ int main(int argc, char *argv[]) {
                     if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 1) {
                         fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         print_usage(progName);
-                        return 1;
+                        return EXIT_FAILURE;
                     }
                 } else {
                     // Set default value
@@ -101,10 +103,10 @@ int main(int argc, char *argv[]) {
             case 'h':
             case 'H':
                 print_help(progName);
-                return 0;
+                return EXIT_SUCCESS;
             default:
                 print_usage(progName);
-                return 1;
+                return EXIT_FAILURE;
         }
     }
 
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
     if (inputA == NULL || inputB == NULL || outputFile == NULL) {
         fprintf(stderr, "Missing input/output file\n");
         print_usage(progName);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // inputA -> input file containing matrix A
@@ -120,6 +122,7 @@ int main(int argc, char *argv[]) {
     // outputFile -> output file for the result matrix
     // version -> specify the implementation version to use (default: 0)
     // benchmark -> measure and output the runtime of the specified implementation, with an optional number of repetitions
+
 
     return 0;
 }
