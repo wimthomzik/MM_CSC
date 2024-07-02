@@ -123,6 +123,32 @@ int main(int argc, char *argv[]) {
     // version -> specify the implementation version to use (default: 0)
     // benchmark -> measure and output the runtime of the specified implementation, with an optional number of repetitions
 
+    // Read input files
+
+    // Initialize matrices
+    csc_matrix matrixA, matrixB;
+
+    // Read matrices from input files
+    if (readCSCMatrix(inputA, &matrixA) != 0) {
+        fprintf(stderr, "Failed to read matrix A\n");
+        return EXIT_FAILURE;
+    }
+
+    if (readCSCMatrix(inputB, &matrixB) != 0) {
+        fprintf(stderr, "Failed to read matrix B\n");
+        return EXIT_FAILURE;
+    }
+
+    // inputA in matrixA
+    // inputB in matrixB
+
+    // Free memory
+    free(matrixA.values);
+    free(matrixA.row_indices);
+    free(matrixA.col_ptr);
+    free(matrixB.values);
+    free(matrixB.row_indices);
+    free(matrixB.col_ptr);
 
     return 0;
 }
