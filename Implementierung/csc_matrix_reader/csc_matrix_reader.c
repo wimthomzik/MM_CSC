@@ -3,6 +3,26 @@
 #include <stddef.h>
 #include "csc_matrix_reader.h"
 
+
+// NNZ ARE THE NON-ZERO ELEMENTS IN THE MATRIX,
+// SO WE NEED TO READ THEM FIRST,
+// BECAUSE THEY ARE USED TO ALLOCATE MEMORY FOR THE OTHER ARRAYS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Open file
     FILE* file = fopen(filename, "r");
