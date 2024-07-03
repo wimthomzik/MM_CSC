@@ -156,7 +156,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Unknown version: %ld\n", version);
         return EXIT_FAILURE;
     }
-
     // Write result matrix to output file
     if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
         fprintf(stderr, "Failed to write result matrix to %s\n", outputFile);
