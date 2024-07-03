@@ -3,10 +3,10 @@
 ##########
 
 # Einstiegspunkt für das Programm und Zielname
-SRC := main.c csc_matrix_reader/csc_matrix_reader.c
+SRC := main.c csc_matrix_reader/csc_matrix_reader.c csc_matrix_writer/csc_matrix_writer.c
 
 # Zusätzliche Flags für den Compiler
-CFLAGS := -Wall -Wextra -I./csc_matrix_reader -I./csc_matrix_reader/csc_matrix_datastructure
+CFLAGS := -Wall -Wextra -I./csc_matrix_datastructure -I./csc_matrix_reader -I./csc_matrix_writer
 
 ###########
 # /Config #

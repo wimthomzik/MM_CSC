@@ -6,6 +6,7 @@
 #include <getopt.h>
 #include "csc_matrix_datastructure/csc_matrix.h"
 #include "csc_matrix_reader/csc_matrix_reader.h"
+#include "csc_matrix_writer/csc_matrix_writer.h"
 
 // Usage messages
 const char* usage_msg =
