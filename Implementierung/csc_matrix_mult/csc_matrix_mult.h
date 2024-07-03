@@ -1,0 +1,4 @@
+#ifndef CSC_MATRIX_MULT_H
+#define CSC_MATRIX_MULT_H
+
+#endif //CSC_MATRIX_MULT_H
