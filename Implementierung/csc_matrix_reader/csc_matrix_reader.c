@@ -32,22 +32,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     // Read value by value
-    float value;
-    while (fscanf(file, "%f", &value) == 1) {
-        if (nnz >= capacity) {
-            capacity *= 2;
-            float* temp = (float*) realloc(matrix->values, capacity * sizeof(float));
-            if (temp == NULL) {
-                perror("Error reallocating memory for values array");
-                free(matrix->values);
-                fclose(file);
-                return EXIT_FAILURE;
-            }
-            matrix->values = temp;
-        }
-        matrix->values[nnz++] = value;
-    }
-    matrix->nnz = nnz;
+
 
     // Allocate memory for row_indices
     matrix->row_indices = (int*) malloc(matrix->nnz * sizeof(int));
@@ -59,15 +44,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     // Read row indices
-    for (size_t i = 0; i < matrix->nnz; i++) {
-        if (fscanf(file, "%d", &matrix->row_indices[i]) != 1) {
-            fprintf(stderr, "Error reading row indices from file.\n");
-            free(matrix->values);
-            free(matrix->row_indices);
-            fclose(file);
-            return EXIT_FAILURE;
-        }
-    }
+
 
     // Allocate memory for col_ptr
     matrix->col_ptr = (int*) malloc((matrix->cols + 1) * sizeof(int));
@@ -80,16 +57,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     // Read column pointers
-    for (size_t i = 0; i < matrix->cols + 1; i++) {
-        if (fscanf(file, "%d", &matrix->col_ptr[i]) != 1) {
-            fprintf(stderr, "Error reading column pointers from file.\n");
-            free(matrix->values);
-            free(matrix->row_indices);
-            free(matrix->col_ptr);
-            fclose(file);
-            return EXIT_FAILURE;
-        }
-    }
+
 
     // Close file
     fclose(file);
