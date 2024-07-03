@@ -147,8 +147,15 @@ int main(int argc, char *argv[]) {
     // inputB in matrixB
     csc_matrix resultMatrix;
 
-    // Multiply matrices
-    matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
+    // Multiply matrices based on version set by user
+    if (version == 0) {
+        matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
+    } else if (version == 1) {
+        // Implement version 1....
+    } else {
+        fprintf(stderr, "Unknown version: %ld\n", version);
+        return EXIT_FAILURE;
+    }
 
     // Write result matrix to output file
     if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
