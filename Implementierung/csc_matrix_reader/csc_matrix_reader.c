@@ -29,7 +29,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     // Check if file was opened successfully
     if (file == NULL) {
-        perror("Error opening file");
+        fprintf(stderr, "Error opening file\n");
         return EXIT_FAILURE;
     }
 
@@ -46,7 +46,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Allocate memory for values
     matrix->values = (float*) malloc(capacity * sizeof(float));
     if (matrix->values == NULL) {
-        perror("Error allocating memory for values array");
+        fprintf(stderr, "Error allocating memory for values array\n");
         fclose(file);
         return EXIT_FAILURE;
     }
@@ -57,7 +57,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Allocate memory for row_indices
     matrix->row_indices = (int*) malloc(matrix->nnz * sizeof(int));
     if (matrix->row_indices == NULL) {
-        perror("Error allocating memory for row indices array");
+        fprintf(stderr, "Error allocating memory for row indices array\n");
         free(matrix->values);
         fclose(file);
         return EXIT_FAILURE;
@@ -69,7 +69,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Allocate memory for col_ptr
     matrix->col_ptr = (int*) malloc((matrix->cols + 1) * sizeof(int));
     if (matrix->col_ptr == NULL) {
-        perror("Error allocating memory for col_ptr array");
+        fprintf(stderr, "Error allocating memory for col_ptr array\n");
         free(matrix->values);
         free(matrix->row_indices);
         fclose(file);

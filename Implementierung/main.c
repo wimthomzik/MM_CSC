@@ -143,7 +143,15 @@ int main(int argc, char *argv[]) {
 
     // inputA in matrixA
     // inputB in matrixB
+    csc_matrix resultMatrix;
 
+    // Multiply matrices ....
+
+    // Write result matrix to output file
+    if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
+        fprintf(stderr, "Failed to write result matrix to %s\n", outputFile);
+        return EXIT_FAILURE;
+    }
     // Free memory
     free(matrixA.values);
     free(matrixA.row_indices);
