@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stddef.h>
 #include <getopt.h>
 #include "csc_matrix_datastructure/csc_matrix.h"
 #include "csc_matrix_reader/csc_matrix_reader.h"
