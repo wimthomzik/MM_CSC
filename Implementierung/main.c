@@ -7,6 +7,8 @@
 #include "csc_matrix_datastructure/csc_matrix.h"
 #include "csc_matrix_reader/csc_matrix_reader.h"
 #include "csc_matrix_writer/csc_matrix_writer.h"
+#include "csc_matrix_mult/csc_matrix_mult.h"
+
 
 // Usage messages
 const char* usage_msg =
@@ -145,7 +147,8 @@ int main(int argc, char *argv[]) {
     // inputB in matrixB
     csc_matrix resultMatrix;
 
-    // Multiply matrices ....
+    // Multiply matrices
+    matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
 
     // Write result matrix to output file
     if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
