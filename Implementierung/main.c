@@ -42,6 +42,28 @@ void print_help(const char* progName) {
     fprintf(stderr, help_msg, progName, progName);
 }
 
+// Cleanup function
+void cleanup(csc_matrix *matrixA, csc_matrix *matrixB, csc_matrix *resultMatrix, int resultAllocated) {
+    if (matrixA) {
+        free(matrixA->values);
+        free(matrixA->row_indices);
+        free(matrixA->col_ptr);
+    }
+
+    if (matrixB) {
+        free(matrixB->values);
+        free(matrixB->row_indices);
+        free(matrixB->col_ptr);
+    }
+
+    if (resultAllocated && resultMatrix) {
+        free(resultMatrix->values);
+        free(resultMatrix->row_indices);
+        free(resultMatrix->col_ptr);
+    }
+}
+
+
 int main(int argc, char *argv[]) {
 
     // Get program name
@@ -87,9 +109,10 @@ int main(int argc, char *argv[]) {
                     // Check if conversion was successful
                     if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 3) {
                         if (benchmark < 3) {
-                            fprintf(stderr, "Benchmark has a minimum of three, but was: %s\n", optarg);
+                            fprintf(stderr, "Invalid Benchmark: Benchmark has minimum of 3, but was: %s\n", optarg);
+                        } else {
+                            fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         }
-                        fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         print_usage(progName);
                         return EXIT_FAILURE;
                     }
@@ -133,22 +156,21 @@ int main(int argc, char *argv[]) {
     // Read input files
 
     // Initialize matrices
-    csc_matrix matrixA, matrixB;
+    csc_matrix matrixA, matrixB, resultMatrix;
 
     // Read matrices from input files
     if (readCSCMatrix(inputA, &matrixA) != 0) {
         fprintf(stderr, "Failed to read matrix A\n");
+        cleanup(&matrixA, &matrixB, &resultMatrix, 0);
         return EXIT_FAILURE;
     }
 
     if (readCSCMatrix(inputB, &matrixB) != 0) {
         fprintf(stderr, "Failed to read matrix B\n");
+        cleanup(&matrixA, &matrixB, &resultMatrix, 0);
         return EXIT_FAILURE;
     }
 
-    // inputA in matrixA
-    // inputB in matrixB
-    csc_matrix resultMatrix;
 
     if (benchmark >= 3) {
         // Get start time
@@ -163,6 +185,7 @@ int main(int argc, char *argv[]) {
                 // Implement version 1....
             } else {
                 fprintf(stderr, "Unknown version: %ld\n", version);
+                cleanup(&matrixA, &matrixB, &resultMatrix, 0);
                 return EXIT_FAILURE;
             }
         }
@@ -189,6 +212,7 @@ int main(int argc, char *argv[]) {
             // Implement version 1....
         } else {
             fprintf(stderr, "Unknown version: %ld\n", version);
+            cleanup(&matrixA, &matrixB, &resultMatrix, 0);
             return EXIT_FAILURE;
         }
     }
@@ -196,15 +220,11 @@ int main(int argc, char *argv[]) {
     // Write result matrix to output file
     if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
         fprintf(stderr, "Failed to write result matrix to %s\n", outputFile);
+        cleanup(&matrixA, &matrixB, &resultMatrix, 1);
         return EXIT_FAILURE;
     }
     // Free memory
-    free(matrixA.values);
-    free(matrixA.row_indices);
-    free(matrixA.col_ptr);
-    free(matrixB.values);
-    free(matrixB.row_indices);
-    free(matrixB.col_ptr);
+    cleanup(&matrixA, &matrixB, &resultMatrix, 1);
 
     return 0;
 }
