@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <getopt.h>
+#include <time.h>
 #include "csc_matrix_datastructure/csc_matrix.h"
 #include "csc_matrix_reader/csc_matrix_reader.h"
 #include "csc_matrix_writer/csc_matrix_writer.h"
@@ -40,7 +41,6 @@ void print_usage(const char* progName) {
 void print_help(const char* progName) {
     fprintf(stderr, help_msg, progName, progName);
 }
-
 
 int main(int argc, char *argv[]) {
 
@@ -85,14 +85,17 @@ int main(int argc, char *argv[]) {
                 if (optarg != NULL) {
                     benchmark = strtol(optarg, &endptr, 10);
                     // Check if conversion was successful
-                    if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 1) {
+                    if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 3) {
+                        if (benchmark < 3) {
+                            fprintf(stderr, "Benchmark has a minimum of three, but was: %s\n", optarg);
+                        }
                         fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         print_usage(progName);
                         return EXIT_FAILURE;
                     }
                 } else {
                     // Set default value
-                    benchmark = 1;
+                    benchmark = -1;
                 }
                 break;
             case 'a':
@@ -147,15 +150,49 @@ int main(int argc, char *argv[]) {
     // inputB in matrixB
     csc_matrix resultMatrix;
 
-    // Multiply matrices based on version set by user
-    if (version == 0) {
-        matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
-    } else if (version == 1) {
-        // Implement version 1....
+    if (benchmark >= 3) {
+        // Get start time
+        struct timespec start;
+        clock_gettime(CLOCK_MONOTONIC, &start);
+
+        for (int i = 0; i < benchmark; i++) {
+            // Multiply matrices based on version set by user
+            if (version == 0) {
+                matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
+            } else if (version == 1) {
+                // Implement version 1....
+            } else {
+                fprintf(stderr, "Unknown version: %ld\n", version);
+                return EXIT_FAILURE;
+            }
+        }
+
+        // Get end time
+        struct timespec end;
+        clock_gettime(CLOCK_MONOTONIC, &end);
+        // Calculate time
+        double time = (double) end.tv_sec - (double) start.tv_sec + 1e-9 * (double) (end.tv_nsec - start.tv_nsec);
+        double avg_time = time / (double) benchmark;
+
+        // Print benchmark results
+        printf("Total time: %f s\n", time);
+        printf("Average time: %f ns\n", avg_time);
+        if (time < 1.) {
+            printf("Warning: Total measurement time is less than one second.\n");
+        }
+        printf("Warning: Make sure you have exclusive access to resources used.\n");
     } else {
-        fprintf(stderr, "Unknown version: %ld\n", version);
-        return EXIT_FAILURE;
+        // Multiply matrices based on version set by user
+        if (version == 0) {
+            matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
+        } else if (version == 1) {
+            // Implement version 1....
+        } else {
+            fprintf(stderr, "Unknown version: %ld\n", version);
+            return EXIT_FAILURE;
+        }
     }
+
     // Write result matrix to output file
     if (writeCSCMatrix(outputFile, &resultMatrix) != 0) {
         fprintf(stderr, "Failed to write result matrix to %s\n", outputFile);
