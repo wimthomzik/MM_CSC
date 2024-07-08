@@ -1,7 +1,7 @@
 #ifndef CSC_MATRIX_WRITER_H
 #define CSC_MATRIX_WRITER_H
 
-#include "../csc_matrix_datastructure/csc_matrix.h"
+#include "../csc_matrix.h"
 
 int writeCSCMatrix(const char *filename, const csc_matrix *matrix);
 

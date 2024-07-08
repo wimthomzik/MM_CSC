@@ -5,10 +5,10 @@
 #include <stddef.h>
 #include <getopt.h>
 #include <time.h>
-#include "csc_matrix_datastructure/csc_matrix.h"
-#include "csc_matrix_reader/csc_matrix_reader.h"
-#include "csc_matrix_writer/csc_matrix_writer.h"
-#include "csc_matrix_mult/csc_matrix_mult.h"
+#include "csc_matrix.h"
+#include "csc_matrix_reader.h"
+#include "csc_matrix_writer.h"
+#include "csc_matrix_mult.h"
 
 
 // Usage messages
