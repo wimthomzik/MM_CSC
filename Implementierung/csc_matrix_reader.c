@@ -9,20 +9,6 @@
 // BECAUSE THEY ARE USED TO ALLOCATE MEMORY FOR THE OTHER ARRAYS
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Open file
     FILE* file = fopen(filename, "r");
