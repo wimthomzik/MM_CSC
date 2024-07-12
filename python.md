@@ -2,7 +2,7 @@
 
 ## setup
 
-```
+```sh
 # Create a new virtualenv
 pip -m venv venv
 
@@ -15,9 +15,10 @@ pip install -r ./requirements.txt
 
 ## run a script
 
-```
-# enter the venv, if you haven't already:
+```sh
+# enter the venv, if you haven't already
 source ./venv/bin/activate
 
-# python <script path>
+# run it
+python <script path>
 ```
