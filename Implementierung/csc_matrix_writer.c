@@ -30,12 +30,15 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
             fclose(file);
             return EXIT_FAILURE;
         }
-        if (i < matrix->nnz - 1) {
-            if (fprintf(file, ",") < 0) {
-                fprintf(stderr, "Failed to write matrix values to %s\n", filename);
-                fclose(file);
-                return EXIT_FAILURE;
-            }
+
+        if (i == matrix->nnz - 1) {
+            break;
+        }
+
+        if (fprintf(file, ",") < 0) {
+            fprintf(stderr, "Failed to write matrix values to %s\n", filename);
+            fclose(file);
+            return EXIT_FAILURE;
         }
     }
     if (fprintf(file, "\n") < 0) {
@@ -51,12 +54,15 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
             fclose(file);
             return EXIT_FAILURE;
         }
-        if (i < matrix->nnz - 1) {
-            if (fprintf(file, ",") < 0) {
-                fprintf(stderr, "Failed to write row indices to %s\n", filename);
-                fclose(file);
-                return EXIT_FAILURE;
-            }
+
+        if (i == matrix->nnz - 1) {
+            break;
+        }
+        
+        if (fprintf(file, ",") < 0) {
+            fprintf(stderr, "Failed to write row indices to %s\n", filename);
+            fclose(file);
+            return EXIT_FAILURE;
         }
     }
     if (fprintf(file, "\n") < 0) {
