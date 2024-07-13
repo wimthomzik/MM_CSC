@@ -4,12 +4,22 @@
 #include <stddef.h>
 
 typedef struct {
+    size_t length;
+    int* data;
+} intvec;
+
+typedef struct {
+    size_t length;
+    float* data;
+} floatvec;
+
+typedef struct {
     int rows;
     int cols;
     size_t nnz;
-    float* values;
-    int* row_indices;
-    int* col_ptr;
+    floatvec values;
+    intvec row_indices;
+    intvec col_ptr;
 } csc_matrix;
 
-#endif // CSC_MATRIX_H
+#endif  // CSC_MATRIX_H
