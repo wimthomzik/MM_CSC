@@ -25,7 +25,6 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     if (res < 0) {
         return res;
     }
-    matrix->nnz = res;
 
     res = readIntLine(file, &matrix->row_indices, NULL);
     if (res < 0) {
