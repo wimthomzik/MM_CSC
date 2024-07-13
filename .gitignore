@@ -5,6 +5,8 @@
 !*/
 !*/.gitkeep
 
+!*.md
+
 # Allow Implementierung and its contents
 !Implementierung/
 !Implementierung/**
