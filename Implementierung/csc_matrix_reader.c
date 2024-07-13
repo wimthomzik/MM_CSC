@@ -1,13 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
 #include "csc_matrix_reader.h"
 
-
-// NNZ ARE THE NON-ZERO ELEMENTS IN THE MATRIX,
-// SO WE NEED TO READ THEM FIRST,
-// BECAUSE THEY ARE USED TO ALLOCATE MEMORY FOR THE OTHER ARRAYS
-
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Open file
@@ -26,46 +21,104 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return EXIT_FAILURE;
     }
 
-    // Read values & determine nnz
-    size_t capacity = 10;
-    size_t nnz = 0;
-    // Allocate memory for values
-    matrix->values = (float*) malloc(capacity * sizeof(float));
-    if (matrix->values == NULL) {
-        fprintf(stderr, "Error allocating memory for values array\n");
-        fclose(file);
-        return EXIT_FAILURE;
+    int res = readFloatLine(file, &matrix->values, &matrix->nnz);
+    if (res < 0) {
+        return res;
     }
 
-    // Read value by value
-
-
-    // Allocate memory for row_indices
-    matrix->row_indices = (int*) malloc(matrix->nnz * sizeof(int));
-    if (matrix->row_indices == NULL) {
-        fprintf(stderr, "Error allocating memory for row indices array\n");
-        free(matrix->values);
-        fclose(file);
-        return EXIT_FAILURE;
+    res = readIntLine(file, &matrix->row_indices, NULL);
+    if (res < 0) {
+        return res;
     }
 
-    // Read row indices
-
-
-    // Allocate memory for col_ptr
-    matrix->col_ptr = (int*) malloc((matrix->cols + 1) * sizeof(int));
-    if (matrix->col_ptr == NULL) {
-        fprintf(stderr, "Error allocating memory for col_ptr array\n");
-        free(matrix->values);
-        free(matrix->row_indices);
-        fclose(file);
-        return EXIT_FAILURE;
+    res = readIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
+    if (res < 0) {
+        return res;
     }
 
-    // Read column pointers
-
-
-    // Close file
     fclose(file);
+    return 0;
+}
+
+int readIntLine(FILE* file, int** vec, size_t* length) {
+    const size_t maxLineLength = 100;
+
+    char line[maxLineLength];
+    char* valuesLine = fgets(line, maxLineLength, file);
+    if (valuesLine == NULL) {
+        printf("Error reading values line from file.\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
+    size_t elementCount = 1;
+    for (size_t i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
+        if (valuesLine[i] == ',') {
+            elementCount++;
+        }
+    }
+
+    int* elements = malloc(sizeof(int) * elementCount);
+    size_t elIndex = 0;
+    size_t elStart = 0;
+    const int maxNumberLength = 10;
+    char numberBuffer[maxNumberLength];
+
+    for (size_t i = 0; valuesLine[i] != 0; i++) {
+        char c = valuesLine[i];
+        if (c == ',' || c == '\n') {
+            size_t len = i - elStart;
+            strncpy(numberBuffer, &valuesLine[elStart], len);
+            elStart = i + 1;
+            numberBuffer[len] = 0;
+            elements[elIndex++] = atoi(numberBuffer);
+        }
+    }
+
+    *vec = elements;
+    *length = elementCount;
+
+    return EXIT_SUCCESS;
+}
+int readFloatLine(FILE* file, float** vec, size_t* length) {
+    const size_t maxLineLength = 100;
+
+    char line[maxLineLength];
+    char* valuesLine = fgets(line, maxLineLength, file);
+    if (valuesLine == NULL) {
+        printf("Error reading values line from file.\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
+    size_t elementCount = 1;
+    for (size_t i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
+        if (valuesLine[i] == ',') {
+            elementCount++;
+        }
+    }
+
+    float* elements = malloc(sizeof(float) * elementCount);
+    size_t elIndex = 0;
+    size_t elStart = 0;
+    const int maxNumberLength = 10;
+    char numberBuffer[maxNumberLength];
+
+    for (size_t i = 0; valuesLine[i] != 0; i++) {
+        char c = valuesLine[i];
+        if (c == ',' || c == '\n') {
+            size_t len = i - elStart;
+            strncpy(numberBuffer, &valuesLine[elStart], len);
+            elStart = i + 1;
+            numberBuffer[len] = 0;
+            elements[elIndex++] = atof(numberBuffer);
+        }
+    }
+
+    *vec = elements;
+    if (length != NULL) {
+        *length = elementCount;
+    }
+
     return EXIT_SUCCESS;
 }

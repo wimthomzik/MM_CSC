@@ -10,6 +10,7 @@ typedef struct {
     float* values;
     int* row_indices;
     int* col_ptr;
+    size_t col_ptr_length;
 } csc_matrix;
 
-#endif // CSC_MATRIX_H
+#endif  // CSC_MATRIX_H
