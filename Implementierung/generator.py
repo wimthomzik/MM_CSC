@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-import random
 from scipy import sparse
 
 def print_arr(arr: list[int]) -> None:
@@ -14,14 +13,12 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
 
-    if args.seed is not None:
-        random.seed(args.seed)
 
     m = args.m
     n = args.n
     density = args.density
 
-    M = sparse.random(m, n, density=density, format='csc')
+    M = sparse.random(m, n, density=density, format='csc', random_state=args.seed)
 
     print_arr([m,n])
     print_arr([round(x, 2) for x in M.data])
