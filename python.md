@@ -13,7 +13,7 @@ source ./venv/bin/activate
 pip install -r ./requirements.txt
 ```
 
-## run a script
+## run a python script
 
 ```sh
 # enter the venv, if you haven't already
