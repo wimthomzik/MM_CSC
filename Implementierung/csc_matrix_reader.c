@@ -22,17 +22,18 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     int res = readFloatLine(file, &matrix->values);
-    if (res != 0) {
+    if (res < 0) {
         return res;
     }
+    matrix->nnz = res;
 
     res = readIntLine(file, &matrix->row_indices);
-    if (res != 0) {
+    if (res < 0) {
         return res;
     }
 
     res = readIntLine(file, &matrix->col_ptr);
-    if (res != 0) {
+    if (res < 0) {
         return res;
     }
 
@@ -40,7 +41,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     return 0;
 }
 
-int readIntLine(FILE* file, intvec* vec) {
+int readIntLine(FILE* file, int** vec) {
     const size_t maxLineLength = 100;
 
     char line[maxLineLength];
@@ -48,10 +49,10 @@ int readIntLine(FILE* file, intvec* vec) {
     if (valuesLine == NULL) {
         printf("Error reading values line from file.\n");
         fclose(file);
-        return EXIT_FAILURE;
+        return -1;
     }
 
-    size_t elementCount = 1;
+    int elementCount = 1;
     for (int i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
         if (valuesLine[i] == ',') {
             elementCount++;
@@ -61,13 +62,13 @@ int readIntLine(FILE* file, intvec* vec) {
     float* elements = malloc(sizeof(float) * elementCount);
     int elIndex = 0;
     int elStart = 0;
-    const size_t maxNumberLength = 10;
+    const int maxNumberLength = 10;
     char numberBuffer[maxNumberLength];
 
     for (int i = 0; valuesLine[i] != 0; i++) {
         char c = valuesLine[i];
         if (c == ',' || c == '\n') {
-            size_t len = i - elStart;
+            int len = i - elStart;
             // copy number to buffer for atoi()
             strncpy(numberBuffer, &valuesLine[elStart], len);
             elStart = i + 1;  // continue after comma
@@ -76,13 +77,12 @@ int readIntLine(FILE* file, intvec* vec) {
         }
     }
 
-    vec->data = elements;
-    vec->length = elementCount;
+    *vec = elements;
 
-    return 0;
+    return elementCount;
 }
 
-int readFloatLine(FILE* file, floatvec* vec) {
+int readFloatLine(FILE* file, float** vec) {
     const size_t maxLineLength = 100;
 
     char line[maxLineLength];
@@ -90,10 +90,10 @@ int readFloatLine(FILE* file, floatvec* vec) {
     if (valuesLine == NULL) {
         printf("Error reading values line from file.\n");
         fclose(file);
-        return EXIT_FAILURE;
+        return -1;
     }
 
-    size_t elementCount = 1;
+    int elementCount = 1;
     for (int i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
         if (valuesLine[i] == ',') {
             elementCount++;
@@ -103,13 +103,13 @@ int readFloatLine(FILE* file, floatvec* vec) {
     float* elements = malloc(sizeof(float) * elementCount);
     int elIndex = 0;
     int elStart = 0;
-    const size_t maxNumberLength = 10;
+    const int maxNumberLength = 10;
     char numberBuffer[maxNumberLength];
 
     for (int i = 0; valuesLine[i] != 0; i++) {
         char c = valuesLine[i];
         if (c == ',' || c == '\n') {
-            size_t len = i - elStart;
+            int len = i - elStart;
             // copy number to buffer for atoi()
             strncpy(numberBuffer, &valuesLine[elStart], len);
             elStart = i + 1;  // continue after comma
@@ -118,8 +118,7 @@ int readFloatLine(FILE* file, floatvec* vec) {
         }
     }
 
-    vec->data = elements;
-    vec->length = elementCount;
+    *vec = elements;
 
-    return 0;
+    return elementCount;
 }
