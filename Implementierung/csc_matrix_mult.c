@@ -50,16 +50,8 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
     size_t row_indicesB[26] = {0,1,2,3,0,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,2,3};
     size_t col_ptrB[8] = {0,4,7,11,15,19,23,26};
 Í
-    memcpy(matrixA->values, valuesA, sizeof(valuesA));
-    memcpy(matrixB->values, valuesB, sizeof(valuesB));
-
-    memcpy(matrixA->row_indices, row_indicesA, sizeof(row_indicesA));
-    memcpy(matrixB->row_indices, row_indicesB, sizeof(row_indicesB));
-
-
-    memcpy(matrixA->col_ptr, col_ptrA, sizeof(col_ptrA));
-    memcpy(matrixB->col_ptr, col_ptrB, sizeof(col_ptrB));
     */
+
     size_t valIndexC = 0;
     //Iterate through columns of matrix B
     for(size_t colIndex = 1;colIndex <= matrixC->cols;colIndex++) {
