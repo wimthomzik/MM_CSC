@@ -4,10 +4,10 @@ default:
 ## C ##
 
 build *FLAGS:
-	cd ./Implementierung && make
+	cd ./Implementierung && make {{FLAGS}}
 
 run *FLAGS:
-	cd ./Implementierung && make && ./main
+	cd ./Implementierung && make && ./main {{FLAGS}}
 
 
 ## Python ##
