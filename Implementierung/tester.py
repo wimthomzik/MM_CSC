@@ -1,5 +1,6 @@
 from scipy.sparse import csc_matrix
 from numpy import matrix
+import numpy as np
 from argparse import ArgumentParser
 import subprocess
 
@@ -34,9 +35,9 @@ def read_file(path: str) -> str:
     raise Exception("file error")
 
 def multiply_with_c(a_path: str, b_path: str) -> matrix:
-    result_path = "./Beispiele/Ergebnis.txt"
+    result_path = "../Beispiele/Ergebnis.txt"
     create_file(result_path)
-    handle = subprocess.run(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", result_path])
+    handle = subprocess.run(["./main", "-a", a_path, "-b", b_path, "-o", result_path])
     if handle.returncode != 0:
         print(f"Error executing c matrix multiplication: process exited with status {handle.returncode}")
         exit(1)
@@ -44,10 +45,11 @@ def multiply_with_c(a_path: str, b_path: str) -> matrix:
     return parse_matrix(f).todense()
 
 def run(a_path: str, b_path: str):
+    print(a_path + " " + b_path)
     a = parse_matrix(read_file(a_path))
-    b = parse_matrix(read_file(a_path))
+    b = parse_matrix(read_file(b_path))
 
-    python_result = a.multiply(b).todense()
+    python_result = a.__mul__(b).todense()
     c_result = multiply_with_c(a_path, b_path)
     
     print("Python result:")
@@ -56,8 +58,13 @@ def run(a_path: str, b_path: str):
     print("C result:")
     print(c_result)
 
+    equal = True
+    for row1,row2 in zip(c_result,python_result):
+        if not np.array_equal(row1,row2):
+            equal = False
+            break
     print("Result:")
-    if c_result == python_result:
+    if equal:
         print("The arrays are equal")
     else:
         print("The arrays are ** Not ** equal")
