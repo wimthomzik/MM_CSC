@@ -21,30 +21,28 @@ def parse_matrix(matrix: str) -> csc_matrix:
 
 def read_file(path: str) -> str:
     with open(path, "r") as f:
-        return f.read()
+        c = f.read()
+        if c == "":
+            print("Empty file")
+            exit(1)
+        return c
     raise Exception("file error")
 
 def multiply_with_c(a_path: str, b_path: str) -> matrix:
     result_path = "./Beispiele/Ergebnis.txt"
-    returncode = subprocess.call(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", "./Beispiele/Ergebnis.txt"])
-    if returncode != 0:
-        print(f"Error executing c matrix multiplication: process exited with status {returncode}")
+    handle = subprocess.run(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", result_path])
+    if handle.returncode != 0:
+        print(f"Error executing c matrix multiplication: process exited with status {handle.returncode}")
         exit(1)
     f = read_file(result_path)
     return parse_matrix(f).todense()
 
-
-def main():
-    parser = ArgumentParser()
-    parser.add_argument('a', type=str)
-    parser.add_argument('b', type=str)
-    args = parser.parse_args()
-    
-    a = parse_matrix(read_file(args.a))
-    b = parse_matrix(read_file(args.b))
+def run(a_path: str, b_path: str):
+    a = parse_matrix(read_file(a_path))
+    b = parse_matrix(read_file(a_path))
 
     python_result = a.multiply(b).todense()
-    c_result = multiply_with_c(args.a, args.b)
+    c_result = multiply_with_c(a_path, b_path)
     
     print("Python result:")
     print(python_result)
@@ -57,6 +55,16 @@ def main():
         print("The arrays are equal")
     else:
         print("The arrays are ** Not ** equal")
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('a', type=str)
+    parser.add_argument('b', type=str)
+    args = parser.parse_args()
+
+    run(args.a, args.b)
+    
+    
 
 if __name__ == "__main__":
     main()
