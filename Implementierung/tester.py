@@ -28,7 +28,7 @@ def read_file(path: str) -> str:
     with open(path, "r") as f:
         c = f.read()
         if c == "":
-            print("Empty file")
+            print(f"Empty file: {path}")
             exit(1)
         return c
     raise Exception("file error")
@@ -70,4 +70,5 @@ def main():
 
     run(args.a, args.b)
     
-    
+if __name__ == "__main__":
+    main()
