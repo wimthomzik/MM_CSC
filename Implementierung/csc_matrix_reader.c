@@ -42,7 +42,7 @@ int readLine(FILE* file, float** vec, size_t* size_ptr, bool isFloat) {
     for (size_t i = 0; line[i] != 0; i++) {
         // Current char
         char c = line[i];
-        if (c == ',' || c == '\n') {
+        if (c == ',' || c == '\n' || c == 0) {
             // length of the current number string slice slice
             size_t len = i - elementStart;
             // copy the string slice into the numberBuffer
@@ -62,8 +62,9 @@ int readLine(FILE* file, float** vec, size_t* size_ptr, bool isFloat) {
 
             // check for error
             if (*end != 0) {
+                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
                 free(elementBuffer);
-                fprintf(stderr, "Error reading matrix col ptr values\n");
+                fprintf(stderr, "Error reading row values: parsing number\n");
                 return EXIT_FAILURE;
             }
 
@@ -73,7 +74,9 @@ int readLine(FILE* file, float** vec, size_t* size_ptr, bool isFloat) {
     }
 
     *vec = elementBuffer;
-    *size_ptr = elementCount;
+    if (size_ptr != NULL) {
+        *size_ptr = elementCount;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -89,21 +92,21 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     // Read matrix dimensions
-    if (fscanf(file, "%d,%d", &matrix->rows, &matrix->cols) != 2) {
+    if (fscanf(file, "%d,%d\n", &matrix->rows, &matrix->cols) != 2) {
         fprintf(stderr, "Error reading matrix dimensions from file.\n");
         fclose(file);
         return EXIT_FAILURE;
     }
 
     int res = readLine(file, &matrix->values, &matrix->nnz, true);
-    if (res < 0) {
+    if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix data values\n");
         fclose(file);
         return res;
     }
 
     res = readLine(file, (float**)&matrix->row_indices, NULL, false);
-    if (res < 0) {
+    if (res != EXIT_SUCCESS) {
         free(matrix->values);
         fprintf(stderr, "Error reading matrix row index values\n");
         fclose(file);
@@ -112,7 +115,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     res = readLine(file, (float**)&matrix->col_ptr, &matrix->col_ptr_length,
                    false);
-    if (res < 0) {
+    if (res != EXIT_SUCCESS) {
         free(matrix->values);
         free(matrix->row_indices);
         fprintf(stderr, "Error reading matrix col ptr values\n");
