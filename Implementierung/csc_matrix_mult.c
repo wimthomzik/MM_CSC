@@ -40,59 +40,60 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
     memset(matrixC->values, 0.0, (worstCaseSize) * sizeof(float));
     memset(matrixC->row_indices, 0, (worstCaseSize) * sizeof(int));
 
-    //Test values
-    float valuesA[6] = {25.000000,0.500000,2.500000,36.000000,6.000000,9.000000};
-    int row_indicesA[6] = {0,1,2,1,1,3};
-    int col_ptrA[5] = {0,3,4,5,6};
+    /*
+    Test case 3:
+    float valuesA[16] = {2,12,4,5,3,7,2,3,6,3,1,7,9,2,6,10};
+    int row_indicesA[16] = {0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3};
+    int col_ptrA[5] = {0,4,8,12,16};
 
-    float valuesB[6] = {5,0.5,6,1,3};
-    int row_indicesB[6] = {0,2,1,1,3};
-    int col_ptrB[5] = {0,2,3,4,5};
-
+    float valuesB[26] = {6,20,12,1,8,6,3,2,7,3,9,1,6,9,8,7,3,15,11,9,8,5,3,13,1,2};
+    int row_indicesB[26] = {0,1,2,3,0,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,2,3};
+    int col_ptrB[8] = {0,4,7,11,15,19,23,26};
+Í
     memcpy(matrixA->values, valuesA, sizeof(valuesA));
     memcpy(matrixB->values, valuesB, sizeof(valuesB));
-    //memcpy(matrixC->values, values, sizeof(values));
 
     memcpy(matrixA->row_indices, row_indicesA, sizeof(row_indicesA));
     memcpy(matrixB->row_indices, row_indicesB, sizeof(row_indicesB));
-    //memcpy(matrixC->row_indices, row_indices, sizeof(row_indices));
+
 
     memcpy(matrixA->col_ptr, col_ptrA, sizeof(col_ptrA));
     memcpy(matrixB->col_ptr, col_ptrB, sizeof(col_ptrB));
-    //memcpy(matrixC->col_ptr, col_ptr, sizeof(col_ptr));
-
-
+    */
     
     int valIndexC = 0;
     //Iterate through columns of matrix B
-    for(int colIndex = 1;colIndex <= matrixB->cols;colIndex++) {
+    for(int colIndex = 1;colIndex <= matrixC->cols;colIndex++) {
         //Iterate through values in current column
         for(int valIndex = matrixB->col_ptr[colIndex-1];valIndex < matrixB->col_ptr[colIndex];valIndex++) {
-            int numVals = valIndex - matrixB->col_ptr[colIndex-1];
             float valB = matrixB->values[valIndex];
-            printf("%d %d:\n",valIndex,colIndex);
+            /*printf("%d %d:\n",valIndex,colIndex-1);*/
             //Iterate through corresponding values in A
             // For every value in the column, we check if there are
             // values in the column of A, which corresponds to the row index
-            // of our value in B. If there is such a non-zero value, we multiply them
+            // of our value in B. This is the only column said value will interact with in
+            // the process of the multiplication. If there is such a non-zero value, we multiply them
             // and add the result to C at the point [rowIndex of A value;column Index of B value]
 
             //Get pointer to column of A
             int colPtrA = matrixB->row_indices[valIndex];
+            /*printf("%d:\n",colPtrA);*/
             //Iterate through column
             for(int valPtrA = matrixA->col_ptr[colPtrA]; valPtrA < matrixA->col_ptr[colPtrA+1];valPtrA++) {
+                int numVals = valIndex - matrixB->col_ptr[colIndex-1];
                 //Get value from A and multiply
                 float valA = matrixA->values[valPtrA];
                 float res = valA * valB;
 
                 //Save at row no. rowIndexA and column no. colIndex (of B)
-                int rowIndexA = row_indicesA[valPtrA]; //TODO: Properly load A row_indices
+                int rowIndexA = matrixA->row_indices[valPtrA]; //TODO: Properly load A row_indices
                 printf("%f %f\n",valB,valA);
 
                 //Check if column position already has a value
                 if(numVals != 0) {
                     int exists = 0;
-                    for(int i = valIndexC;i >= matrixC->col_ptr[colIndex-1];i--) {
+                    //Go backwards through values in column
+                    for(int i = valIndexC-1;i >= matrixC->col_ptr[colIndex-1];i--) {
                         if(matrixC->row_indices[i] == rowIndexA) {
                             matrixC->values[i] += res;
                             exists = 1;
@@ -123,8 +124,8 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
 
                 valIndexC++;
             }
-            matrixC->col_ptr[colIndex] = valIndexC;
         }
+        matrixC->col_ptr[colIndex] = valIndexC;
     }
     matrixC->nnz = valIndexC;
 }
