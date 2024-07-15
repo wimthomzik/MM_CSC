@@ -15,7 +15,9 @@
 !Vortrag/
 !Vortrag/**
 
-justfile
+!justfile
+
+!requirements.txt
 
 # Ignore Build artifacts
 Implementierung/main.dSYM/**
