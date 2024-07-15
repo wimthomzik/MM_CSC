@@ -17,6 +17,9 @@
 
 !justfile
 
+!Beispiele/
+!Beispiele/**
+
 !requirements.txt
 
 # Ignore Build artifacts
