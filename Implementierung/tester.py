@@ -28,7 +28,7 @@ def multiply_with_c(a_path: str, b_path: str) -> matrix:
     result_path = "./Beispiele/Ergebnis.txt"
     returncode = subprocess.call(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", "./Beispiele/Ergebnis.txt"])
     if returncode != 0:
-        print("Error executing c matrix multiplication: process exited with status "+returncode)
+        print(f"Error executing c matrix multiplication: process exited with status {returncode}")
         exit(1)
     f = read_file(result_path)
     return parse_matrix(f).todense()
