@@ -15,5 +15,9 @@ run *FLAGS:
 venv:
 	[ -d venv ] || (python3 -m venv venv && ./venv/bin/pip install -r ./requirements.txt)
 
+reset-venv:
+	rm -rf ./venv
+	just venv
+
 generate *FLAGS: venv
 	./venv/bin/python ./Implementierung/generator.py {{FLAGS}}
