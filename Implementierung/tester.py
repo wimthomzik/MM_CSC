@@ -6,6 +6,11 @@ import subprocess
 def parse_line(line: str, fn) -> list:
     return [fn(x) for x in line.split(",")]
 
+def create_file(path: str):
+    f = open(path, "w")
+    f.write("")
+    f.close()
+
 def parse_matrix(matrix: str) -> csc_matrix:
     lines = matrix.split("\n")
 
@@ -30,6 +35,7 @@ def read_file(path: str) -> str:
 
 def multiply_with_c(a_path: str, b_path: str) -> matrix:
     result_path = "./Beispiele/Ergebnis.txt"
+    create_file(result_path)
     handle = subprocess.run(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", result_path])
     if handle.returncode != 0:
         print(f"Error executing c matrix multiplication: process exited with status {handle.returncode}")
@@ -65,6 +71,3 @@ def main():
     run(args.a, args.b)
     
     
-
-if __name__ == "__main__":
-    main()
