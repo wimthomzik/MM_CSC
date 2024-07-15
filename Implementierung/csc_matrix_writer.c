@@ -17,7 +17,7 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
     }
 
     // Write number of rows and columns
-    if (fprintf(file, "%d,%d\n", matrix->rows, matrix->cols) < 0) {
+    if (fprintf(file, "%zd,%zd\n", matrix->rows, matrix->cols) < 0) {
         fprintf(stderr, "Failed to write matrix dimensions to %s\n", filename);
         fclose(file);
         return EXIT_FAILURE;
@@ -49,7 +49,7 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
 
     // Write row indices
     for (size_t i = 0; i < matrix->nnz; i++) {
-        if (fprintf(file, "%d", matrix->row_indices[i]) < 0) {
+        if (fprintf(file, "%zd", matrix->row_indices[i]) < 0) {
             fprintf(stderr, "Failed to write row indices to %s\n", filename);
             fclose(file);
             return EXIT_FAILURE;
@@ -72,8 +72,8 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
     }
 
     // Write column pointers
-    for (int i = 0; i <= matrix->cols; i++) {
-        if (fprintf(file, "%d", matrix->col_ptr[i]) < 0) {
+    for (size_t i = 0; i <= matrix->cols; i++) {
+        if (fprintf(file, "%zd", matrix->col_ptr[i]) < 0) {
             fprintf(stderr, "Failed to write column pointers to %s\n", filename);
             fclose(file);
             return EXIT_FAILURE;

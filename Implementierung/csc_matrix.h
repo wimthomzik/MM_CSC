@@ -4,12 +4,12 @@
 #include <stddef.h>
 
 typedef struct {
-    int rows;
-    int cols;
+    size_t rows;
+    size_t cols;
     size_t nnz;
     float* values;
-    int* row_indices;
-    int* col_ptr;
+    size_t* row_indices;
+    size_t* col_ptr;
     size_t col_ptr_length;
 } csc_matrix;
 
