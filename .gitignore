@@ -5,6 +5,8 @@
 !*/
 !*/.gitkeep
 
+!*.md
+
 # Allow Implementierung and its contents
 !Implementierung/
 !Implementierung/**
@@ -12,6 +14,8 @@
 # Allow Vortrag and its contents
 !Vortrag/
 !Vortrag/**
+
+justfile
 
 # Ignore Build artifacts
 Implementierung/main.dSYM/**
