@@ -31,7 +31,7 @@ def multiply_with_c(a_path: str, b_path: str) -> matrix:
         print("Error executing c matrix multiplication: process exited with status "+returncode)
         exit(1)
     f = read_file(result_path)
-    return parse_matrix(f).to_dense()
+    return parse_matrix(f).todense()
 
 
 def main():
@@ -43,7 +43,7 @@ def main():
     a = parse_matrix(read_file(args.a))
     b = parse_matrix(read_file(args.b))
 
-    python_result = a.multiply(b).to_dense()
+    python_result = a.multiply(b).todense()
     c_result = multiply_with_c(args.a, args.b)
     
     print("Python result:")
