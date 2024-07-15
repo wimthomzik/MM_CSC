@@ -121,5 +121,5 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     fclose(file);
-    return 0;
+    return EXIT_SUCCESS;
 }
