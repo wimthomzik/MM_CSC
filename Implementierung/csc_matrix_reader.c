@@ -8,13 +8,13 @@
 
 int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
     // Constants
-    const size_t maxLineLength = 100;
+    size_t maxLineLength = 100;
     const size_t maxNumberLength = 10;
 
     // Read Line
-    char lineBuffer[maxLineLength];
-    char* line = fgets(lineBuffer, maxLineLength, file);
-    if (line == NULL) {
+    char* line = malloc(sizeof(char)*maxLineLength);
+    size_t lineSize = getline(&line, &maxLineLength, file);
+    if (lineSize == 0) {
         printf("Error reading values line from file.\n");
         fclose(file);
         return EXIT_FAILURE;
@@ -78,13 +78,13 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
 
 int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
     // Constants
-    const size_t maxLineLength = 100;
+    size_t maxLineLength = 100;
     const size_t maxNumberLength = 10;
 
     // Read Line
-    char lineBuffer[maxLineLength];
-    char* line = fgets(lineBuffer, maxLineLength, file);
-    if (line == NULL) {
+    char* line = malloc(sizeof(char)*maxLineLength);
+    size_t lineSize = getline(&line, &maxLineLength, file);
+    if (lineSize == 0) {
         printf("Error reading values line from file.\n");
         fclose(file);
         return EXIT_FAILURE;

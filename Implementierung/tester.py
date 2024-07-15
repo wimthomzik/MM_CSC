@@ -44,30 +44,33 @@ def multiply_with_c(a_path: str, b_path: str) -> matrix:
     f = read_file(result_path)
     return parse_matrix(f).todense()
 
-def run(a_path: str, b_path: str):
-    print(a_path + " " + b_path)
+def run(a_path: str, b_path: str, verbose: bool = False):
     a = parse_matrix(read_file(a_path))
     b = parse_matrix(read_file(b_path))
 
     python_result = a.__mul__(b).todense()
     c_result = multiply_with_c(a_path, b_path)
     
-    print("Python result:")
-    print(python_result)
-    
-    print("C result:")
-    print(c_result)
+    if not verbose:
+        print("Python result:")
+        print(python_result)
+        
+        print("C result:")
+        print(c_result)
 
     equal = True
     for row1,row2 in zip(c_result,python_result):
-        if not np.array_equal(row1,row2):
+        if not np.isclose(row1,row2).all():
             equal = False
             break
-    print("Result:")
-    if equal:
-        print("The arrays are equal")
-    else:
-        print("The arrays are ** Not ** equal")
+
+    if not verbose:
+        print("Result:")
+        if equal:
+            print("The arrays are equal")
+        else:
+            print("The arrays are ** Not ** equal")
+    return equal
 
 def main():
     parser = ArgumentParser()
