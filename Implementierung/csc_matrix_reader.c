@@ -1,89 +1,79 @@
 #include "csc_matrix_reader.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int readIntLine(FILE* file, int** vec, size_t* length) {
+int readLine(FILE* file, float** vec, size_t* size_ptr, bool isFloat) {
+    // Constants
     const size_t maxLineLength = 100;
+    const size_t maxNumberLength = 10;
 
-    char line[maxLineLength];
-    char* valuesLine = fgets(line, maxLineLength, file);
-    if (valuesLine == NULL) {
+    // Read Line
+    char lineBuffer[maxLineLength];
+    char* line = fgets(lineBuffer, maxLineLength, file);
+    if (line == NULL) {
         printf("Error reading values line from file.\n");
         fclose(file);
         return EXIT_FAILURE;
     }
 
+    // Count Number of elements -> At least 1, then 1 per comma
     size_t elementCount = 1;
-    for (size_t i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
-        if (valuesLine[i] == ',') {
+    for (size_t i = 0; line[i] != 0 && line[i] != '\n'; i++) {
+        if (line[i] == ',') {
             elementCount++;
         }
     }
 
-    int* elements = malloc(sizeof(int) * elementCount);
-    size_t elIndex = 0;
-    size_t elStart = 0;
-    const int maxNumberLength = 10;
+    // Address to the start of the Element Buffer
+    float* elementBuffer = malloc(sizeof(float) * elementCount);
+    // Address of the current position in the element buffer
+    size_t elementIndex = 0;
+
+    // Position of the start of the next element in the line buffer
+    size_t elementStart = 0;
+
+    // Necessary for null terminated strings (string parsing)
     char numberBuffer[maxNumberLength];
 
-    for (size_t i = 0; valuesLine[i] != 0; i++) {
-        char c = valuesLine[i];
+    for (size_t i = 0; line[i] != 0; i++) {
+        // Current char
+        char c = line[i];
         if (c == ',' || c == '\n') {
-            size_t len = i - elStart;
-            strncpy(numberBuffer, &valuesLine[elStart], len);
-            elStart = i + 1;
+            // length of the current number string slice slice
+            size_t len = i - elementStart;
+            // copy the string slice into the numberBuffer
+            strncpy(numberBuffer, &line[elementStart], len);
+            // null terminate the numberBuffer for string things
             numberBuffer[len] = 0;
-            elements[elIndex++] = atoi(numberBuffer);
+
+            // convert to number
+            char* end;
+            if (isFloat) {
+                elementBuffer[elementIndex++] =
+                    strtof((char*)&numberBuffer, &end);
+            } else {
+                elementBuffer[elementIndex++] =
+                    strtol((char*)&numberBuffer, &end, 10);
+            }
+
+            // check for error
+            if (*end != 0) {
+                free(elementBuffer);
+                fprintf(stderr, "Error reading matrix col ptr values\n");
+                return EXIT_FAILURE;
+            }
+
+            // the new elementStart is the Position *after* the comma
+            elementStart = i + 1;
         }
     }
 
-    *vec = elements;
-    *length = elementCount;
-
-    return EXIT_SUCCESS;
-}
-int readFloatLine(FILE* file, float** vec, size_t* length) {
-    const size_t maxLineLength = 100;
-
-    char line[maxLineLength];
-    char* valuesLine = fgets(line, maxLineLength, file);
-    if (valuesLine == NULL) {
-        printf("Error reading values line from file.\n");
-        fclose(file);
-        return EXIT_FAILURE;
-    }
-
-    size_t elementCount = 1;
-    for (size_t i = 0; valuesLine[i] != 0 && valuesLine[i] != '\n'; i++) {
-        if (valuesLine[i] == ',') {
-            elementCount++;
-        }
-    }
-
-    float* elements = malloc(sizeof(float) * elementCount);
-    size_t elIndex = 0;
-    size_t elStart = 0;
-    const int maxNumberLength = 10;
-    char numberBuffer[maxNumberLength];
-
-    for (size_t i = 0; valuesLine[i] != 0; i++) {
-        char c = valuesLine[i];
-        if (c == ',' || c == '\n') {
-            size_t len = i - elStart;
-            strncpy(numberBuffer, &valuesLine[elStart], len);
-            elStart = i + 1;
-            numberBuffer[len] = 0;
-            elements[elIndex++] = atof(numberBuffer);
-        }
-    }
-
-    *vec = elements;
-    if (length != NULL) {
-        *length = elementCount;
-    }
+    *vec = elementBuffer;
+    *size_ptr = elementCount;
 
     return EXIT_SUCCESS;
 }
@@ -105,18 +95,28 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return EXIT_FAILURE;
     }
 
-    int res = readFloatLine(file, &matrix->values, &matrix->nnz);
+    int res = readLine(file, &matrix->values, &matrix->nnz, true);
     if (res < 0) {
+        fprintf(stderr, "Error reading matrix data values\n");
+        fclose(file);
         return res;
     }
 
-    res = readIntLine(file, &matrix->row_indices, NULL);
+    res = readLine(file, (float**)&matrix->row_indices, NULL, false);
     if (res < 0) {
+        free(matrix->values);
+        fprintf(stderr, "Error reading matrix row index values\n");
+        fclose(file);
         return res;
     }
 
-    res = readIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
+    res = readLine(file, (float**)&matrix->col_ptr, &matrix->col_ptr_length,
+                   false);
     if (res < 0) {
+        free(matrix->values);
+        free(matrix->row_indices);
+        fprintf(stderr, "Error reading matrix col ptr values\n");
+        fclose(file);
         return res;
     }
 
