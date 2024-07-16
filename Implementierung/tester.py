@@ -3,13 +3,16 @@ from numpy import matrix, isclose
 from argparse import ArgumentParser
 import subprocess
 
+
 def parse_line(line: str, fn) -> list:
     return [fn(x) for x in line.split(",")]
+
 
 def create_file(path: str):
     f = open(path, "w")
     f.write("")
     f.close()
+
 
 def parse_matrix(matrix: str) -> csc_matrix:
     lines = matrix.split("\n")
@@ -17,12 +20,13 @@ def parse_matrix(matrix: str) -> csc_matrix:
     dimensions = parse_line(lines[0], int)
     m = dimensions[0]
     n = dimensions[1]
-    
+
     values = parse_line(lines[1], float)
     row_indices = parse_line(lines[2], int)
     col_ptrs = parse_line(lines[3], int)
 
     return csc_matrix((values, row_indices, col_ptrs), shape=(m, n))
+
 
 def read_file(path: str) -> str:
     with open(path, "r") as f:
@@ -33,15 +37,21 @@ def read_file(path: str) -> str:
         return c
     raise Exception("file error")
 
+
 def multiply_with_c(a_path: str, b_path: str) -> matrix:
     result_path = "./Beispiele/Ergebnis.txt"
     create_file(result_path)
-    handle = subprocess.run(["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", result_path])
+    handle = subprocess.run(
+        ["./Implementierung/main", "-a", a_path, "-b", b_path, "-o", result_path]
+    )
     if handle.returncode != 0:
-        print(f"Error executing c matrix multiplication: process exited with status {handle.returncode}")
+        print(
+            f"Error executing c matrix multiplication: process exited with status {handle.returncode}"
+        )
         exit(1)
     f = read_file(result_path)
     return parse_matrix(f).todense()
+
 
 def run(a_path: str, b_path: str, verbose: bool):
     a = parse_matrix(read_file(a_path))
@@ -49,17 +59,17 @@ def run(a_path: str, b_path: str, verbose: bool):
 
     python_result = a.multiply(b).todense()
     c_result = multiply_with_c(a_path, b_path)
-    
+
     if not verbose:
         print("Python result:")
         print(python_result)
-        
+
         print("C result:")
         print(c_result)
 
     equal = True
-    for row1,row2 in zip(c_result,python_result):
-        if not isclose(row1,row2).all():
+    for row1, row2 in zip(c_result, python_result):
+        if not isclose(row1, row2).all():
             equal = False
             break
 
@@ -70,14 +80,16 @@ def run(a_path: str, b_path: str, verbose: bool):
         else:
             print("The arrays are ** Not ** equal")
 
+
 def main():
     parser = ArgumentParser()
-    parser.add_argument('a', type=str)
-    parser.add_argument('b', type=str)
-    parser.add_argument('--verbose', type=bool, default=False, action='store_true')
+    parser.add_argument("a", type=str)
+    parser.add_argument("b", type=str)
+    parser.add_argument("--verbose", default=False, action="store_true")
     args = parser.parse_args()
 
-    run(args.a, args.b)
-    
+    run(args.a, args.b, args.verbose)
+
+
 if __name__ == "__main__":
     main()
