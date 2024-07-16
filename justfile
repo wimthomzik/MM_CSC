@@ -20,7 +20,7 @@ reset-venv:
 	just venv
 
 generate *FLAGS: venv
-	./venv/bin/python ./Implementierung/generator.py {{FLAGS}}
+	./venv/bin/python ./Skripte/generator.py {{FLAGS}}
 
 test *FLAGS: venv
-	./venv/bin/python ./Implementierung/tester.py {{FLAGS}}
+	./venv/bin/python ./Skripte/tester.py {{FLAGS}}

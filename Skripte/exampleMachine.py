@@ -1,4 +1,4 @@
-import generator as g
+import Implementierung.scripts.generator as g
 import tester
 import numpy as np
 
