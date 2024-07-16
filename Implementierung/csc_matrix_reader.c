@@ -241,6 +241,14 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return EXIT_FAILURE;
     }
 
+    // Check for extra data in the file
+    int extra_char;
+    if (fscanf(file, "%d", &extra_char) != EOF) {
+        fprintf(stderr, "Error: Extra data found in file after expected matrix data\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
 
     fclose(file);
     return EXIT_SUCCESS;
