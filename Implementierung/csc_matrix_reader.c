@@ -19,7 +19,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
     }
 
     size_t lineSize = getline(&line, &maxLineLength, file);
-    if (lineSize == 0) {
+    if (lineSize == -1) {
         free(line);
         printf("Error reading values line from file.\n");
         fclose(file);
@@ -100,7 +100,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
         return EXIT_FAILURE;
     }
     size_t lineSize = getline(&line, &maxLineLength, file);
-    if (lineSize == 0) {
+    if (lineSize == -1) {
         free(line);
         printf("Error reading values line from file.\n");
         fclose(file);
