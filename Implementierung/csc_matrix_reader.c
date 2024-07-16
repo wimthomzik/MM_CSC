@@ -20,6 +20,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
 
     size_t lineSize = getline(&line, &maxLineLength, file);
     if (lineSize == 0) {
+        free(line);
         printf("Error reading values line from file.\n");
         fclose(file);
         return EXIT_FAILURE;
@@ -37,6 +38,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
     // Address to the start of the Element Buffer
     float* elementBuffer = malloc(sizeof(float) * elementCount);
     if (elementBuffer == NULL) {
+        free(line);
         fprintf(stderr, "Failed to allocate memory for element buffer\n");
         return EXIT_FAILURE;
     }
@@ -68,6 +70,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
             if (*end != 0) {
                 fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
                 free(elementBuffer);
+                free(line);
                 fprintf(stderr, "Error reading row values: parsing number\n");
                 return EXIT_FAILURE;
             }
@@ -81,7 +84,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
     if (size_ptr != NULL) {
         *size_ptr = elementCount;
     }
-
+    free(line);
     return EXIT_SUCCESS;
 }
 
@@ -98,6 +101,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
     }
     size_t lineSize = getline(&line, &maxLineLength, file);
     if (lineSize == 0) {
+        free(line);
         printf("Error reading values line from file.\n");
         fclose(file);
         return EXIT_FAILURE;
@@ -114,6 +118,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
     // Address to the start of the Element Buffer
     size_t* elementBuffer = malloc(sizeof(uint64_t) * elementCount);
     if (elementBuffer == NULL) {
+        free(line);
         fprintf(stderr, "Failed to allocate memory for element buffer\n");
         return EXIT_FAILURE;
     }
@@ -147,6 +152,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
             // check for error
             if (*end != 0) {
                 fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
+                free(line);
                 free(elementBuffer);
                 fprintf(stderr, "Error reading row values: parsing number\n");
                 return EXIT_FAILURE;
@@ -161,7 +167,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
     if (size_ptr != NULL) {
         *size_ptr = elementCount;
     }
-
+    free(line);
     return EXIT_SUCCESS;
 }
 
