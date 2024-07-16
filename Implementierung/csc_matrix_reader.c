@@ -11,17 +11,20 @@ int readDynamicFloatLine(FILE* file, float** vec, size_t* size_ptr) {
     size_t lineSize = 0;
     ssize_t read;
 
+    // Read line from file
     read = getline(&line, &lineSize, file);
     if (read == -1) {
         fprintf(stderr, "Error reading line from file.\n");
         return EXIT_FAILURE;
     }
 
-    if (lineSize == 1) { // Check for empty lines - New Check
+    // Check for empty lines
+    if (lineSize == 1) {
         free(line);
         return EXIT_FAILURE;
     }
 
+    // Parse line and store values in vector
     size_t count = 0;
     char* end;
     for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
@@ -41,7 +44,7 @@ int readDynamicFloatLine(FILE* file, float** vec, size_t* size_ptr) {
             return EXIT_FAILURE;
         }
     }
-
+    // Store size of vector
     *size_ptr = count;
     free(line);
     return EXIT_SUCCESS;
