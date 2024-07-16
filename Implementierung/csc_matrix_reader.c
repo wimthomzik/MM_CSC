@@ -1,186 +1,89 @@
 #include "csc_matrix_reader.h"
 #include <errno.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
-    // Constants
-    size_t maxLineLength = 100;
-    const size_t maxNumberLength = 10;
 
-    // Read Line
-    char* line = malloc(sizeof(char)*maxLineLength);
-    if (line == NULL) {
-        fprintf(stderr, "Failed to allocate memory for line buffer\n");
+int readDynamicFloatLine(FILE* file, float** vec, size_t* size_ptr) {
+    char* line = NULL;
+    size_t lineSize = 0;
+    ssize_t read;
+
+    read = getline(&line, &lineSize, file);
+    if (read == -1) {
+        fprintf(stderr, "Error reading line from file.\n");
         return EXIT_FAILURE;
     }
 
-    size_t lineSize = getline(&line, &maxLineLength, file);
-    if (lineSize == 0) {
+    if (lineSize == 1) { // Check for empty lines - New Check
         free(line);
-        printf("Error reading values line from file.\n");
-        fclose(file);
         return EXIT_FAILURE;
     }
 
-    // Count Number of elements -> At least 1, then 1 per comma
-    size_t elementCount = 1;
-    for (size_t i = 0; line[i] != 0 && line[i] != '\n'; i++) {
-        if (line[i] == ',') {
-            elementCount++;
+    size_t count = 0;
+    char* end;
+    for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
+        count++;
+        *vec = realloc(*vec, count * sizeof(float));
+        if (*vec == NULL) {
+            fprintf(stderr, "Failed to allocate memory for vector\n");
+            free(line);
+            return EXIT_FAILURE;
+        }
+        errno = 0;
+        (*vec)[count - 1] = strtof(p, &end);
+        if (errno == ERANGE || *end != '\0') {
+            fprintf(stderr, "Invalid float value or number out of range: '%s'\n", p);
+            //free(*vec);
+            free(line);
+            return EXIT_FAILURE;
         }
     }
 
-
-    // Address to the start of the Element Buffer
-    float* elementBuffer = malloc(sizeof(float) * elementCount);
-    if (elementBuffer == NULL) {
-        free(line);
-        fprintf(stderr, "Failed to allocate memory for element buffer\n");
-        return EXIT_FAILURE;
-    }
-    // Address of the current position in the element buffer
-    size_t elementIndex = 0;
-
-    // Position of the start of the next element in the line buffer
-    size_t elementStart = 0;
-
-    // Necessary for null terminated strings (string parsing)
-    char numberBuffer[maxNumberLength];
-
-    for (size_t i = 0; line[i] != 0; i++) {
-        // Current char
-        char c = line[i];
-        if (c == ',' || c == '\n' || c == 0) {
-            // length of the current number string slice slice
-            size_t len = i - elementStart;
-            // copy the string slice into the numberBuffer
-            strncpy(numberBuffer, &line[elementStart], len);
-            // null terminate the numberBuffer for string things
-            numberBuffer[len] = 0;
-
-            // convert to number
-            char* end;
-            errno = 0;
-            elementBuffer[elementIndex++] = strtof((char*)&numberBuffer, &end);
-
-            // check for error
-            if (*end != 0) {
-                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
-                free(elementBuffer);
-                free(line);
-                fprintf(stderr, "Error reading row values: parsing number\n");
-                return EXIT_FAILURE;
-            } else if (errno == ERANGE) {
-                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
-                free(elementBuffer);
-                free(line);
-                fprintf(stderr, "Error reading row values: number out of range\n");
-                return EXIT_FAILURE;
-            }
-
-            // the new elementStart is the Position *after* the comma
-            elementStart = i + 1;
-        }
-    }
-
-    *vec = elementBuffer;
-    if (size_ptr != NULL) {
-        *size_ptr = elementCount;
-    }
+    *size_ptr = count;
     free(line);
     return EXIT_SUCCESS;
 }
 
-int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
-    // Constants
-    size_t maxLineLength = 100;
-    const size_t maxNumberLength = 10;
+int readDynamicIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
+    char* line = NULL;
+    size_t lineSize = 0;
+    ssize_t read;
 
-    // Read Line
-    char* line = malloc(sizeof(char)*maxLineLength);
-    if (line == NULL) {
-        fprintf(stderr, "Failed to allocate memory for line buffer\n");
+    read = getline(&line, &lineSize, file);
+    if (read == -1) {
+        fprintf(stderr, "Error reading line from file.\n");
         return EXIT_FAILURE;
     }
-    size_t lineSize = getline(&line, &maxLineLength, file);
-    if (lineSize == 0) {
+
+    if (lineSize == 1) { // Check for empty lines - New Check
         free(line);
-        printf("Error reading values line from file.\n");
-        fclose(file);
         return EXIT_FAILURE;
     }
 
-    // Count Number of elements -> At least 1, then 1 per comma
-    size_t elementCount = 1;
-    for (size_t i = 0; line[i] != 0 && line[i] != '\n'; i++) {
-        if (line[i] == ',') {
-            elementCount++;
+    size_t count = 0;
+    char* end;
+    for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
+        count++;
+        *vec = realloc(*vec, count * sizeof(size_t));
+        if (*vec == NULL) {
+            fprintf(stderr, "Failed to allocate memory for vector\n");
+            free(line);
+            return EXIT_FAILURE;
+        }
+        errno = 0;
+        (*vec)[count - 1] = strtol(p, &end, 10);
+        if (errno == ERANGE || *end != '\0') {
+            fprintf(stderr, "Invalid integer value or number out of range: '%s'\n", p);
+            //free(*vec);
+            free(line);
+            return EXIT_FAILURE;
         }
     }
 
-    // Address to the start of the Element Buffer
-    size_t* elementBuffer = malloc(sizeof(uint64_t) * elementCount);
-    if (elementBuffer == NULL) {
-        free(line);
-        fprintf(stderr, "Failed to allocate memory for element buffer\n");
-        return EXIT_FAILURE;
-    }
-    // Address of the current position in the element buffer
-    size_t elementIndex = 0;
-
-    // Position of the start of the next element in the line buffer
-    size_t elementStart = 0;
-    //Save len
-
-    // Necessary for null terminated strings (string parsing)
-    char numberBuffer[maxNumberLength];
-
-    size_t i = -1;
-    do {
-        i++;
-        // Current char
-        char c = line[i];
-        if (c == ',' || c == '\n' || c == 0) {
-            // length of the current number string slice slice
-            size_t len = i - elementStart;
-            // copy the string slice into the numberBuffer
-            strncpy(numberBuffer, &line[elementStart], len);
-            // null terminate the numberBuffer for string things
-            numberBuffer[len] = 0;
-
-            // convert to number
-            errno = 0;
-            char* end;
-            elementBuffer[elementIndex++] = strtol((char*)&numberBuffer, &end, 10);
-
-            // check for error
-            if (*end != 0) {
-                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
-                free(line);
-                free(elementBuffer);
-                fprintf(stderr, "Error reading row values: parsing number\n");
-                return EXIT_FAILURE;
-            } else if (errno == ERANGE) {
-                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
-                free(elementBuffer);
-                free(line);
-                fprintf(stderr, "Error reading row values: number out of range\n");
-                return EXIT_FAILURE;
-            }
-
-            // the new elementStart is the Position *after* the comma
-            elementStart = i + 1;
-        }
-    } while(line[i] != 0);
-
-    *vec = elementBuffer;
-    if (size_ptr != NULL) {
-        *size_ptr = elementCount;
-    }
+    *size_ptr = count;
     free(line);
     return EXIT_SUCCESS;
 }
@@ -195,22 +98,34 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return EXIT_FAILURE;
     }
 
-    // Read matrix dimensions
-    if (fscanf(file, "%zd,%zd\n", &matrix->rows, &matrix->cols) != 2) {
-        fprintf(stderr, "Error reading matrix dimensions from file.\n");
+    // Read dimensions
+    char line[1000];
+    if (fgets(line, sizeof(line), file) == NULL) {
+        fprintf(stderr, "Error reading line from file.\n");
         fclose(file);
         return EXIT_FAILURE;
     }
+    size_t rows, cols;
+    char checkChar;
+    if (sscanf(line, "%zd,%zd%c", &rows, &cols, &checkChar) != 3 || checkChar != '\n') {
+        fprintf(stderr, "Error: Format of dimensions must be 'int,int\\n'.\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+    matrix->rows = rows;
+    matrix->cols = cols;
 
-    int res = readFloatLine(file, &matrix->values, &matrix->nnz);
+    // Read data values
+    int res = readDynamicFloatLine(file, &matrix->values, &matrix->nnz);
     if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix data values\n");
         fclose(file);
         return res;
     }
 
+    // Read row indices
     size_t row_indices_length;
-    res = readIntLine(file, &matrix->row_indices, &row_indices_length);
+    res = readDynamicIntLine(file, &matrix->row_indices, &row_indices_length);
     if (res != EXIT_SUCCESS) {
         //free(matrix->values);
         fprintf(stderr, "Error reading matrix row index values\n");
@@ -218,7 +133,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return res;
     }
 
-    res = readIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
+    // Read column pointers
+    res = readDynamicIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
     if (res != EXIT_SUCCESS) {
         //free(matrix->values);
         //free(matrix->row_indices);
@@ -227,28 +143,39 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return res;
     }
 
-    // Check if the number of columns matches the length of the column pointer array match
-    if (matrix->cols != matrix->col_ptr_length - 1) {
-        fprintf(stderr, "Error: Number of columns do not match the length of the column pointer array\n");
-        fclose(file);
-        return EXIT_FAILURE;
-    }
 
-    // Check if the number of nnz matches the length of the row_indices array match
+    // Check if the number of row indices matches the number of non-zero elements
     if (row_indices_length != matrix->nnz) {
         fprintf(stderr, "Error: Number of row indices do not match number of non-zero elements\n");
         fclose(file);
         return EXIT_FAILURE;
     }
 
-    // Check for extra data in the file
-    int extra_char;
-    if (fscanf(file, "%d", &extra_char) != EOF) {
-        fprintf(stderr, "Error: Extra data found in file after expected matrix data\n");
+    //Check for extra data in file
+    char extraBuffer[10];
+    if (fgets(extraBuffer, sizeof(extraBuffer), file) != NULL) {
+        fprintf(stderr, "Error: Extra data found in file after expected matrix data. Extra data.\nHint: This error also occurs if you have too many new lines in you input file.");
         fclose(file);
         return EXIT_FAILURE;
     }
 
+    // Check if the number of columns matches the length of the column pointer array
+    if (matrix->cols != matrix->col_ptr_length - 1) {
+        fprintf(stderr, "Error: Number of columns do not match the length of the column pointer array\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
+    // Ensure all entries in col_ptr for a zero matrix are zero if nnz is 0
+    if (matrix->nnz == 0) {
+        for (size_t i = 0; i < matrix->col_ptr_length; ++i) {
+            if (matrix->col_ptr[i] != 0) {
+                fprintf(stderr, "Error: Expected all zero column pointers for an all-zero matrix.\n");
+                fclose(file);
+                return EXIT_FAILURE;
+            }
+        }
+    }
 
     fclose(file);
     return EXIT_SUCCESS;
