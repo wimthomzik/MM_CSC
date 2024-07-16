@@ -191,7 +191,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     res = readIntLine(file, &matrix->row_indices, NULL);
     if (res != EXIT_SUCCESS) {
-        free(matrix->values);
+        //free(matrix->values);
         fprintf(stderr, "Error reading matrix row index values\n");
         fclose(file);
         return res;
@@ -199,8 +199,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     res = readIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
     if (res != EXIT_SUCCESS) {
-        free(matrix->values);
-        free(matrix->row_indices);
+        //free(matrix->values);
+        //free(matrix->row_indices);
         fprintf(stderr, "Error reading matrix col ptr values\n");
         fclose(file);
         return res;
