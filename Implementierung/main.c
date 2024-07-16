@@ -236,8 +236,8 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    printf("Matrix A:\n");
-    printCSCMatrix(&matrixA);
+    //printf("Matrix A:\n");
+    //printCSCMatrix(&matrixA);
 
     if (readCSCMatrix(inputB, &matrixB) != EXIT_SUCCESS) {
         fprintf(stderr, "Failed to read matrix B\n");
