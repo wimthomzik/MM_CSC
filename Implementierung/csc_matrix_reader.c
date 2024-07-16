@@ -13,6 +13,11 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
 
     // Read Line
     char* line = malloc(sizeof(char)*maxLineLength);
+    if (line == NULL) {
+        fprintf(stderr, "Failed to allocate memory for line buffer\n");
+        return EXIT_FAILURE;
+    }
+
     size_t lineSize = getline(&line, &maxLineLength, file);
     if (lineSize == 0) {
         printf("Error reading values line from file.\n");
@@ -31,6 +36,10 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
 
     // Address to the start of the Element Buffer
     float* elementBuffer = malloc(sizeof(float) * elementCount);
+    if (elementBuffer == NULL) {
+        fprintf(stderr, "Failed to allocate memory for element buffer\n");
+        return EXIT_FAILURE;
+    }
     // Address of the current position in the element buffer
     size_t elementIndex = 0;
 
@@ -83,6 +92,10 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
 
     // Read Line
     char* line = malloc(sizeof(char)*maxLineLength);
+    if (line == NULL) {
+        fprintf(stderr, "Failed to allocate memory for line buffer\n");
+        return EXIT_FAILURE;
+    }
     size_t lineSize = getline(&line, &maxLineLength, file);
     if (lineSize == 0) {
         printf("Error reading values line from file.\n");
@@ -100,6 +113,10 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
 
     // Address to the start of the Element Buffer
     size_t* elementBuffer = malloc(sizeof(uint64_t) * elementCount);
+    if (elementBuffer == NULL) {
+        fprintf(stderr, "Failed to allocate memory for element buffer\n");
+        return EXIT_FAILURE;
+    }
     // Address of the current position in the element buffer
     size_t elementIndex = 0;
 
