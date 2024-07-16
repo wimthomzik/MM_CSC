@@ -1,5 +1,5 @@
 #include "csc_matrix_reader.h"
-
+#include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -64,6 +64,7 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
 
             // convert to number
             char* end;
+            errno = 0;
             elementBuffer[elementIndex++] = strtof((char*)&numberBuffer, &end);
 
             // check for error
@@ -72,6 +73,12 @@ int readFloatLine(FILE* file, float** vec, size_t* size_ptr) {
                 free(elementBuffer);
                 free(line);
                 fprintf(stderr, "Error reading row values: parsing number\n");
+                return EXIT_FAILURE;
+            } else if (errno == ERANGE) {
+                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
+                free(elementBuffer);
+                free(line);
+                fprintf(stderr, "Error reading row values: number out of range\n");
                 return EXIT_FAILURE;
             }
 
@@ -131,7 +138,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
 
     // Necessary for null terminated strings (string parsing)
     char numberBuffer[maxNumberLength];
-    
+
     size_t i = -1;
     do {
         i++;
@@ -146,6 +153,7 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
             numberBuffer[len] = 0;
 
             // convert to number
+            errno = 0;
             char* end;
             elementBuffer[elementIndex++] = strtol((char*)&numberBuffer, &end, 10);
 
@@ -155,6 +163,12 @@ int readIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
                 free(line);
                 free(elementBuffer);
                 fprintf(stderr, "Error reading row values: parsing number\n");
+                return EXIT_FAILURE;
+            } else if (errno == ERANGE) {
+                fprintf(stderr, "String i tried to read: <%s>\n", numberBuffer);
+                free(elementBuffer);
+                free(line);
+                fprintf(stderr, "Error reading row values: number out of range\n");
                 return EXIT_FAILURE;
             }
 
@@ -211,6 +225,14 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         fclose(file);
         return res;
     }
+
+    // Check if the number of columns matches the length of the column pointer array
+    if (matrix->cols != matrix->col_ptr_length - 1) {
+        fprintf(stderr, "Error: Number of columns do not match the length of the column pointer array\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
 
     fclose(file);
     return EXIT_SUCCESS;
