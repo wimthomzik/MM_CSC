@@ -36,8 +36,9 @@ def main():
     n = args.n
     density = args.density
     save = args.save
+    seed = args.seed
 
-    generate(m,n,density,save)
+    generate(m, n, density, save, seed)
 
 if __name__ == '__main__':
     main()
