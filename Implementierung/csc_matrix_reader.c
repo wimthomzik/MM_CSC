@@ -209,7 +209,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return res;
     }
 
-    res = readIntLine(file, &matrix->row_indices, NULL);
+    size_t row_indices_length;
+    res = readIntLine(file, &matrix->row_indices, &row_indices_length);
     if (res != EXIT_SUCCESS) {
         //free(matrix->values);
         fprintf(stderr, "Error reading matrix row index values\n");
@@ -226,9 +227,16 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return res;
     }
 
-    // Check if the number of columns matches the length of the column pointer array
+    // Check if the number of columns matches the length of the column pointer array match
     if (matrix->cols != matrix->col_ptr_length - 1) {
         fprintf(stderr, "Error: Number of columns do not match the length of the column pointer array\n");
+        fclose(file);
+        return EXIT_FAILURE;
+    }
+
+    // Check if the number of nnz matches the length of the row_indices array match
+    if (row_indices_length != matrix->nnz) {
+        fprintf(stderr, "Error: Number of row indices do not match number of non-zero elements\n");
         fclose(file);
         return EXIT_FAILURE;
     }
