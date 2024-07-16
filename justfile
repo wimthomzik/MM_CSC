@@ -10,6 +10,16 @@ run *FLAGS:
 	cd ./Implementierung && make && ./main {{FLAGS}}
 
 
+## RamDISK ##
+ramdisk:
+	diskutil erasevolume HFS+ 'RAM Disk' `hdiutil attach -nobrowse -nomount ram://1048576`
+	rm -rf ./Beispiele
+	ln -s /Volumes/RAM\ Disk ./Beispiele
+
+ramdisk-stop:
+	hdiutil detach /dev/disk4
+	rm -f ./Beispiele
+
 ## Python ##
 
 venv:
