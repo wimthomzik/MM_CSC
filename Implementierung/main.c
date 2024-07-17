@@ -250,5 +250,5 @@ int main(int argc, char *argv[]) {
     // Free memory
     cleanup(&matrixA, &matrixB, &resultMatrix, 1);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
