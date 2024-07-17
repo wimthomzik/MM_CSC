@@ -5,6 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Note:
+ * In cases of multiple commas or spaces between values the function will ignore the extra commas and spaces and filter out the values.
+ * "1.0,,,,,1.0" will be read as "1.0,1.0".
+ * "1.0,     1.0" will be read as "1.0,1.0".
+ * The function will also ignore empty lines. This will later result in an error when reading the matrix data and is thereby handled.
+ */
+
+//Enum for identifying the data type of the vector
 typedef enum {
     FLOAT,
     INT
@@ -17,7 +26,9 @@ int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
 
     // Read line from file
     read = getline(&line, &lineSize, file);
+    // Check if line was read successfully
     if (read == -1) {
+        free(line);
         fprintf(stderr, "Error reading line from file.\n");
         return EXIT_FAILURE;
     }
@@ -28,39 +39,66 @@ int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
         return EXIT_FAILURE;
     }
 
+    // Initialize vector
     size_t count = 0;
+    size_t capacity = 4;
+    if (type == FLOAT) {
+        *vec = malloc(capacity * sizeof(float));
+    } else {
+        *vec = malloc(capacity * sizeof(size_t));
+    }
+    if (*vec == NULL) {
+        fprintf(stderr, "Failed to allocate initial memory for vector\n");
+        free(line);
+        return EXIT_FAILURE;
+    }
+
     char* end;
-    for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
+    // Split line iteratively into tokens
+    char* p = strtok(line, ", \t\n");
+    while (p != NULL) {
         count++;
-        if (type == FLOAT) {
-            *vec = realloc(*vec, count * sizeof(float));
-            if (*vec == NULL) {
-                fprintf(stderr, "Failed to allocate memory for vector\n");
-                free(line);
-                return EXIT_FAILURE;
+        // Reallocate memory if necessary
+        if (count > capacity) {
+            capacity *= 2;
+            if (type == FLOAT) {
+                float* temp = realloc(*vec, capacity * sizeof(float));
+                if (temp == NULL) {
+                    fprintf(stderr, "Failed to reallocate memory for vector\n");
+                    free(line);
+                    return EXIT_FAILURE;
+                }
+                *vec = temp;
+            } else {
+                size_t* temp = realloc(*vec, capacity * sizeof(size_t));
+                if (temp == NULL) {
+                    fprintf(stderr, "Failed to reallocate memory for vector\n");
+                    free(line);
+                    return EXIT_FAILURE;
+                }
+                *vec = temp;
             }
+        }
+        // Convert token to float or int
+        if (type == FLOAT) {
             errno = 0;
             ((float*)(*vec))[count - 1] = strtof(p, &end);
-            if (errno == ERANGE || *end != '\0') {
+            if (errno == ERANGE || *end != '\0' || p == end) {
                 fprintf(stderr, "Invalid float value or number out of range: '%s'\n", p);
                 free(line);
                 return EXIT_FAILURE;
             }
         } else if (type == INT) {
-            *vec = realloc(*vec, count * sizeof(size_t));
-            if (*vec == NULL) {
-                fprintf(stderr, "Failed to allocate memory for vector\n");
-                free(line);
-                return EXIT_FAILURE;
-            }
             errno = 0;
             ((size_t*)(*vec))[count - 1] = strtol(p, &end, 10);
-            if (errno == ERANGE || *end != '\0') {
+            if (errno == ERANGE || *end != '\0' || p == end) {
                 fprintf(stderr, "Invalid integer value or number out of range: '%s'\n", p);
                 free(line);
                 return EXIT_FAILURE;
             }
         }
+        // Get next token
+        p = strtok(NULL, ", \t\n");
     }
 
     // Store size of vector
