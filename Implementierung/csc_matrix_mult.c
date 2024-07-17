@@ -5,12 +5,12 @@
 #include <stdio.h>
 
 /*Include allowed intrinsics*/
-<xmmintrin.h> SSE
-<emmintrin.h> SSE2
-<pmmintrin.h> SSE3
-<tmmintrin.h> SSSE3
-<smmintrin.h> SSE4.1
-<nmmintrin.h> SSE4.2
+#include <xmmintrin.h>
+#include <emmintrin.h>
+#include <pmmintrin.h>
+#include <tmmintrin.h>
+#include <smmintrin.h>
+#include <nmmintrin.h>
 
 void matr_mult_csc(const void *a, const void *b, void *result) {
     const csc_matrix *matrixA = (const csc_matrix *) a;
@@ -189,7 +189,7 @@ void matr_mult_csc_intrinsics(const void *a, const void *b, void *result) {
         size_t* rowBuffer = malloc(sizeof(size_t)*matrixC->rows);
 
         //Iterate through values in current column
-        for(size_t valIndex = prevColIndex;valIndex < currentColPtr;valIndex++) {
+        for(size_t valIndex = prevColPtr;valIndex < currentColPtr;valIndex++) {
             float valB = matrixB->values[valIndex];
             /*printf("%d %d:\n",valIndex,colIndex-1);*/
             //Iterate through corresponding values in A
@@ -207,7 +207,7 @@ void matr_mult_csc_intrinsics(const void *a, const void *b, void *result) {
             /*printf("%d:\n",colPtrA);*/
             //Iterate through column
             for(size_t valPtrA = currentColPtrA; valPtrA < nextColPtrA;valPtrA++) {
-                size_t numVals = valIndex - prevColIndex;
+                size_t numVals = valIndex - prevColPtr;
                 //Get value from A and multiply
                 float valA = matrixA->values[valPtrA];
                 float res = valA * valB;
