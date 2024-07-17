@@ -1,4 +1,4 @@
-import generator as g
+import Implementierung.scripts.generator as g
 import tester
 import numpy as np
 
@@ -9,7 +9,7 @@ for i in range(10):
 i = 0
 for ex in examples:
     for ex2 in examples:
-        if not tester.run(ex,ex2,True):
+        if not tester.run(ex, ex2, True):
             print("Error multiplying: " + ex + " and " + ex2)
         print(f"#{i} passed")
-        i+=1
+        i += 1
