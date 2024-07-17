@@ -93,5 +93,5 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
     }
 
     fclose(file);
-    return 0;
+    return EXIT_SUCCESS;
 }
