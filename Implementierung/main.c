@@ -10,8 +10,6 @@
 #include "csc_matrix_reader.h"
 #include "csc_matrix_writer.h"
 
-#include <stdio.h>
-
 void printCSCMatrix(const csc_matrix* matrix) {
     if (matrix == NULL) {
         fprintf(stderr, "Null matrix pointer provided.\n");
