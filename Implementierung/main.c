@@ -89,16 +89,16 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // Variables for command line arguments
+    // init vars for command line arguments
     char *inputA = NULL, *inputB = NULL, *outputFile = NULL;
     long version = 0, benchmark = 0;
 
-    // Long options
+    // Long options for --help
     struct option long_options[] = {
         {"help", no_argument, 0, 'H'},
     };
 
-    // Parse command line arguments
+    // Parse cmd line arguments
     int opt;
     while ((opt = getopt_long(argc, argv, "V:B:a:b:o:h", long_options, NULL)) !=
            -1) {
@@ -109,10 +109,10 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'V':
                 // Convert string to long
+                errno = 0;
                 version = strtol(optarg, &endptr, 10);
                 // Check if conversion was successful
-                if (endptr == optarg || errno != 0 || *endptr != '\0' ||
-                    version < 0) {
+                if (endptr == optarg || errno != 0 || *endptr != '\0' || version < 0) {
                     fprintf(stderr, "Invalid Version: %s\n", optarg);
                     print_usage(progName);
                     return EXIT_FAILURE;
@@ -121,15 +121,13 @@ int main(int argc, char *argv[]) {
             case 'B':
                 // Convert string to long
                 if (optarg != NULL) {
+                    errno = 0;
                     benchmark = strtol(optarg, &endptr, 10);
                     // Check if conversion was successful
-                    if (endptr == optarg || errno != 0 || *endptr != '\0' ||
-                        benchmark < 3) {
+                    if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 3) {
                         if (benchmark < 3) {
                             fprintf(stderr,
-                                    "Invalid Benchmark: Benchmark has minimum "
-                                    "of 3, but was: %s\n",
-                                    optarg);
+                                    "Invalid Benchmark: Benchmark has minimum of 3, but was: %s\n", optarg);
                         } else {
                             fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         }
