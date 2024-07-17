@@ -57,7 +57,8 @@ def run(a_path: str, b_path: str, verbose: bool):
     a = parse_matrix(read_file(a_path))
     b = parse_matrix(read_file(b_path))
 
-    python_result = a.multiply(b).todense()
+    python_result = a.__mul__(b).todense()
+    
     c_result = multiply_with_c(a_path, b_path)
 
     if not verbose:
