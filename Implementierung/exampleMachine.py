@@ -4,7 +4,7 @@ import numpy as np
 
 examples = []
 
-for i in range(100):
+for i in range(10):
         examples.append(g.generate(1000,1000,0.03,True,np.random.randint(0,1000000)))
 i = 0
 for ex in examples:
