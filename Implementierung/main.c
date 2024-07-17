@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
-
+//#include <unistd.h>
 #include "csc_matrix.h"
 #include "csc_matrix_mult.h"
 #include "csc_matrix_reader.h"
