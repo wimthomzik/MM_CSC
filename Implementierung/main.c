@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
-
+//#include <unistd.h>
 #include "csc_matrix.h"
 #include "csc_matrix_mult_V0.h"
 #include "csc_matrix_mult_V1.h"
@@ -13,54 +12,7 @@
 #include "csc_matrix_mult_V3.h"
 #include "csc_matrix_reader.h"
 #include "csc_matrix_writer.h"
-
-#include <stdio.h>
-
-void printCSCMatrix(const csc_matrix* matrix) {
-    if (matrix == NULL) {
-        fprintf(stderr, "Null matrix pointer provided.\n");
-        return;
-    }
-
-    // Print dimensions
-    printf("%zu,%zu\n", matrix->rows, matrix->cols);
-
-    // Print values
-    if (matrix->nnz > 0 && matrix->values != NULL) {
-        for (size_t i = 0; i < matrix->nnz; i++) {
-            if (i < matrix->nnz - 1)
-                printf("%.2f,", matrix->values[i]);
-            else
-                printf("%.2f\n", matrix->values[i]);
-        }
-    } else {
-        printf("\n");
-    }
-
-    // Print row indices
-    if (matrix->nnz > 0 && matrix->row_indices != NULL) {
-        for (size_t i = 0; i < matrix->nnz; i++) {
-            if (i < matrix->nnz - 1)
-                printf("%zu,", matrix->row_indices[i]);
-            else
-                printf("%zu\n", matrix->row_indices[i]);
-        }
-    } else {
-        printf("\n");
-    }
-
-    // Print column pointers
-    if (matrix->col_ptr_length > 0 && matrix->col_ptr != NULL) {
-        for (size_t i = 0; i < matrix->col_ptr_length; i++) {
-            if (i < matrix->col_ptr_length - 1)
-                printf("%zu,", matrix->col_ptr[i]);
-            else
-                printf("%zu\n", matrix->col_ptr[i]);
-        }
-    } else {
-        printf("\n");
-    }
-}
+//#include "csc_matrix_printer.h" //uncomment to use printCSCMatrix
 
 
 // Usage messages
@@ -140,16 +92,16 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // Variables for command line arguments
+    // init vars for command line arguments
     char *inputA = NULL, *inputB = NULL, *outputFile = NULL;
     long version = 0, benchmark = 0;
 
-    // Long options
+    // Long options for --help
     struct option long_options[] = {
         {"help", no_argument, 0, 'H'},
     };
 
-    // Parse command line arguments
+    // Parse cmd line arguments
     int opt;
     while ((opt = getopt_long(argc, argv, "V:B:a:b:o:h", long_options, NULL)) !=
            -1) {
@@ -160,10 +112,10 @@ int main(int argc, char *argv[]) {
         switch (opt) {
             case 'V':
                 // Convert string to long
+                errno = 0;
                 version = strtol(optarg, &endptr, 10);
                 // Check if conversion was successful
-                if (endptr == optarg || errno != 0 || *endptr != '\0' ||
-                    version < 0) {
+                if (endptr == optarg || errno != 0 || *endptr != '\0' || version < 0) {
                     fprintf(stderr, "Invalid Version: %s\n", optarg);
                     print_usage(progName);
                     return EXIT_FAILURE;
@@ -172,15 +124,13 @@ int main(int argc, char *argv[]) {
             case 'B':
                 // Convert string to long
                 if (optarg != NULL) {
+                    errno = 0;
                     benchmark = strtol(optarg, &endptr, 10);
                     // Check if conversion was successful
-                    if (endptr == optarg || errno != 0 || *endptr != '\0' ||
-                        benchmark < 3) {
+                    if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 3) {
                         if (benchmark < 3) {
                             fprintf(stderr,
-                                    "Invalid Benchmark: Benchmark has minimum "
-                                    "of 3, but was: %s\n",
-                                    optarg);
+                                    "Invalid Benchmark: Benchmark has minimum of 3, but was: %s\n", optarg);
                         } else {
                             fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         }
@@ -238,9 +188,6 @@ int main(int argc, char *argv[]) {
         cleanup(&matrixA, &matrixB, &resultMatrix, 1);
         return EXIT_FAILURE;
     }
-
-    //printf("Matrix A:\n");
-    //printCSCMatrix(&matrixA);
 
     if (readCSCMatrix(inputB, &matrixB) != EXIT_SUCCESS) {
         fprintf(stderr, "Failed to read matrix B\n");
@@ -324,5 +271,5 @@ int main(int argc, char *argv[]) {
     // Free memory
     cleanup(&matrixA, &matrixB, &resultMatrix, 1);
 
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -5,15 +5,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Note:
+ * In cases of multiple commas or spaces between values the function will ignore the extra commas and spaces and filter out the values.
+ * "1.0,,,,,1.0" will be read as "1.0,1.0".
+ * "1.0,     1.0" will be read as "1.0,1.0".
+ * The function will also ignore empty lines. This will later result in an error when reading the matrix data and is thereby handled.
+ */
 
-int readDynamicFloatLine(FILE* file, float** vec, size_t* size_ptr) {
+//Enum for identifying the data type of the vector
+typedef enum {
+    FLOAT,
+    INT
+} DataType;
+
+int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
     char* line = NULL;
     size_t lineSize = 0;
     ssize_t read;
 
     // Read line from file
     read = getline(&line, &lineSize, file);
+    // Check if line was read successfully
     if (read == -1) {
+        free(line);
         fprintf(stderr, "Error reading line from file.\n");
         return EXIT_FAILURE;
     }
@@ -24,68 +39,69 @@ int readDynamicFloatLine(FILE* file, float** vec, size_t* size_ptr) {
         return EXIT_FAILURE;
     }
 
-    // Parse line and store values in vector
+    // Initialize vector
     size_t count = 0;
-    char* end;
-    for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
-        count++;
-        *vec = realloc(*vec, count * sizeof(float));
-        if (*vec == NULL) {
-            fprintf(stderr, "Failed to allocate memory for vector\n");
-            free(line);
-            return EXIT_FAILURE;
-        }
-        errno = 0;
-        (*vec)[count - 1] = strtof(p, &end);
-        if (errno == ERANGE || *end != '\0') {
-            fprintf(stderr, "Invalid float value or number out of range: '%s'\n", p);
-            //free(*vec);
-            free(line);
-            return EXIT_FAILURE;
-        }
+    size_t capacity = 4;
+    if (type == FLOAT) {
+        *vec = malloc(capacity * sizeof(float));
+    } else {
+        *vec = malloc(capacity * sizeof(size_t));
     }
-    // Store size of vector
-    *size_ptr = count;
-    free(line);
-    return EXIT_SUCCESS;
-}
-
-int readDynamicIntLine(FILE* file, size_t** vec, size_t* size_ptr) {
-    char* line = NULL;
-    size_t lineSize = 0;
-    ssize_t read;
-
-    read = getline(&line, &lineSize, file);
-    if (read == -1) {
-        fprintf(stderr, "Error reading line from file.\n");
-        return EXIT_FAILURE;
-    }
-
-    if (lineSize == 1) { // Check for empty lines - New Check
+    if (*vec == NULL) {
+        fprintf(stderr, "Failed to allocate initial memory for vector\n");
         free(line);
         return EXIT_FAILURE;
     }
 
-    size_t count = 0;
     char* end;
-    for (char* p = strtok(line, ", \t\n"); p != NULL; p = strtok(NULL, ", \t\n")) {
+    // Split line iteratively into tokens
+    char* p = strtok(line, ", \t\n");
+    while (p != NULL) {
         count++;
-        *vec = realloc(*vec, count * sizeof(size_t));
-        if (*vec == NULL) {
-            fprintf(stderr, "Failed to allocate memory for vector\n");
-            free(line);
-            return EXIT_FAILURE;
+        // Reallocate memory if necessary
+        if (count > capacity) {
+            capacity *= 2;
+            if (type == FLOAT) {
+                float* temp = realloc(*vec, capacity * sizeof(float));
+                if (temp == NULL) {
+                    fprintf(stderr, "Failed to reallocate memory for vector\n");
+                    free(line);
+                    return EXIT_FAILURE;
+                }
+                *vec = temp;
+            } else {
+                size_t* temp = realloc(*vec, capacity * sizeof(size_t));
+                if (temp == NULL) {
+                    fprintf(stderr, "Failed to reallocate memory for vector\n");
+                    free(line);
+                    return EXIT_FAILURE;
+                }
+                *vec = temp;
+            }
         }
-        errno = 0;
-        (*vec)[count - 1] = strtol(p, &end, 10);
-        if (errno == ERANGE || *end != '\0') {
-            fprintf(stderr, "Invalid integer value or number out of range: '%s'\n", p);
-            //free(*vec);
-            free(line);
-            return EXIT_FAILURE;
+        // Convert token to float or int
+        if (type == FLOAT) {
+            errno = 0;
+            ((float*)(*vec))[count - 1] = strtof(p, &end);
+            if (errno == ERANGE || *end != '\0' || p == end) {
+                fprintf(stderr, "Invalid float value or number out of range: '%s'\n", p);
+                free(line);
+                return EXIT_FAILURE;
+            }
+        } else if (type == INT) {
+            errno = 0;
+            ((size_t*)(*vec))[count - 1] = strtol(p, &end, 10);
+            if (errno == ERANGE || *end != '\0' || p == end) {
+                fprintf(stderr, "Invalid integer value or number out of range: '%s'\n", p);
+                free(line);
+                return EXIT_FAILURE;
+            }
         }
+        // Get next token
+        p = strtok(NULL, ", \t\n");
     }
 
+    // Store size of vector
     *size_ptr = count;
     free(line);
     return EXIT_SUCCESS;
@@ -119,7 +135,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     matrix->cols = cols;
 
     // Read data values
-    int res = readDynamicFloatLine(file, &matrix->values, &matrix->nnz);
+    int res = readDynamicLine(file, (void**)&matrix->values, &matrix->nnz, FLOAT);
     if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix data values\n");
         fclose(file);
@@ -128,24 +144,20 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     // Read row indices
     size_t row_indices_length;
-    res = readDynamicIntLine(file, &matrix->row_indices, &row_indices_length);
+    res = readDynamicLine(file, (void**)&matrix->row_indices, &row_indices_length, INT);
     if (res != EXIT_SUCCESS) {
-        //free(matrix->values);
         fprintf(stderr, "Error reading matrix row index values\n");
         fclose(file);
         return res;
     }
 
     // Read column pointers
-    res = readDynamicIntLine(file, &matrix->col_ptr, &matrix->col_ptr_length);
+    res = readDynamicLine(file, (void**)&matrix->col_ptr, &matrix->col_ptr_length, INT);
     if (res != EXIT_SUCCESS) {
-        //free(matrix->values);
-        //free(matrix->row_indices);
         fprintf(stderr, "Error reading matrix col ptr values\n");
         fclose(file);
         return res;
     }
-
 
     // Check if the number of row indices matches the number of non-zero elements
     if (row_indices_length != matrix->nnz) {
@@ -154,7 +166,7 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
         return EXIT_FAILURE;
     }
 
-    //Check for extra data in file
+    // Check for extra data in file
     char extraBuffer[10];
     if (fgets(extraBuffer, sizeof(extraBuffer), file) != NULL) {
         fprintf(stderr, "Error: Extra data found in file after expected matrix data. Extra data.\nHint: This error also occurs if you have too many new lines in you input file.");
