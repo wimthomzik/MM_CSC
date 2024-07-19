@@ -9,3 +9,4 @@ Beispiele/*
 tmp/*
 .DS_Store
 perf.*
+flamegraph.svg
