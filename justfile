@@ -20,7 +20,7 @@ fg-cp:
 	(cd .. && rsync -azvhPe 'ssh -oPort=22 -i ./MM_CSC/server_key' --exclude="venv/*" --exclude=".git/*" ./MM_CSC root@195.201.17.122:/root)
 
 fg-svg:
-	scp -i ./server_key root@195.201.17.122:/root/perf.svg perf.svg
+	./download.sh
 
 
 
