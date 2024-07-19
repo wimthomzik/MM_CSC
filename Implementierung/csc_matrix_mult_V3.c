@@ -62,9 +62,21 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
 
     //csc_to_csr(matrixA);
 
+    /*
+    Für jede Spalte i in B:
+        Initialisiere Array um errechnete Werte der Reihen zu speichern
+        Für jeden Wert k in i:
+            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von k):
+                v = k*h
+                Falls in i schon Wert für Reihe(h) berechnet:
+                    Addiere v
+                Sonst:
+                    Speichere v in C bei Reihe(h) von Spalte i
+            Setze Spaltenpointer von i auf aktuelle Anzahl Elemente
+    Setze nnz von C auf Anzahl Elemente
+    */
 
     size_t *rowBuffer = (size_t *)calloc(matrixA->rows, sizeof(size_t));
-
     size_t valIndexC = 0;
     //Iterate through columns of matrix B
     for(size_t colIndex = 0;colIndex < matrixC->cols;colIndex++) {
@@ -79,7 +91,7 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
             size_t nextColPtrA = matrixA->col_ptr[rowB+1];
 
             size_t valIndexA = currentColPtrA;
-            for(;valIndexA & 0xF;valIndexA++) {
+            for(;valIndexA & 0xF && valIndexA < nextColPtrA;valIndexA++) {
                 size_t rowA = matrixA->row_indices[valIndexA];
                 float valA = matrixA->values[valIndexA];
 
@@ -90,7 +102,8 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
                 }
                 matrixC->values[rowBuffer[rowA]-1] += valA*valB;
             }
-
+            //Directly use computed values
+            //Leads to easier structure and benefits from memory locality
             for(;valIndexA < nextColPtrA-4; valIndexA+=4) {
                 size_t rowA = matrixA->row_indices[valIndexA];
                 size_t rowA1 = matrixA->row_indices[valIndexA+1];
@@ -135,6 +148,11 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
                 matrixC->values[rowBuffer[rowA3]-1] += resultArr[3];
             }
 
+            /*
+            Change from V2:
+            rowBuffer now also prevents the need to move added values backwards
+            through the arrays.
+            */
             for(;valIndexA < nextColPtrA; valIndexA++) {
                 size_t rowA = matrixA->row_indices[valIndexA];
                 float valA = matrixA->values[valIndexA];

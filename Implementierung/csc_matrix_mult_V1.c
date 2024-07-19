@@ -61,6 +61,29 @@ void matr_mult_csc_V1(const void *a, const void *b, void *result) {
 Í
     */
 
+    /*
+    Änderung von V1:
+    Um das Backtracken durch die eingetragenen Werte einer Column (zur Überprüfung
+    ob diese Row bereits einen Wert hat) zu verhindern, wird ein statischer Array
+    angelegt. Dieser hat so viele Elemente wie die Ergebnismatrix Rows. So kann beim errechnen
+    dieser Row bestimmt werden, ob für diese bereits ein Wert existiert. Falls ja, wird dieser
+    an gespeicherter Stelle addiert, wenn nicht wird ein neuer Wert in row_indices und values
+    angelegt.
+    */
+
+    /*
+    Für jede Spalte i in B:
+        Initialisiere Array um errechnete Werte der Reihen zu speichern
+        Für jeden Wert k in i:
+            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von k):
+                v = k*h
+                Falls in i schon Wert für Reihe(h) berechnet:
+                    Addiere v
+                Sonst:
+                    Speichere v in C bei Reihe(h) von Spalte i
+            Setze Spaltenpointer von i auf aktuelle Anzahl Elemente
+    Setze nnz von C auf Anzahl Elemente
+    */
     size_t valIndexC = 0;
     //Iterate through columns of matrix B
     for(size_t colIndex = 1;colIndex <= matrixC->cols;colIndex++) {
@@ -132,8 +155,11 @@ void matr_mult_csc_V1(const void *a, const void *b, void *result) {
                 matrixC->values[valIndexC] += res;
                 matrixC->row_indices[valIndexC] = rowIndexA;
 
+                
                 //Move backwards in list to appropriate position 
-                //if rowIndex is larger than previous element
+                //if rowIndex is larger than previous element (so rows are sorted)
+                // elIndex -> save of valIndexC, propagates backwards with value
+                // numVals -> number of values already added in this column, so we don't go back to a previous column's values
                 size_t elIndex = valIndexC;
                 while(numVals > 0 && matrixC->row_indices[elIndex-1] > rowIndexA) {
                     matrixC->values[elIndex] = matrixC->values[elIndex-1];

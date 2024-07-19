@@ -63,11 +63,21 @@ void matr_mult_csc_V2(const void *a, const void *b, void *result) {
 
     //csc_to_csr(matrixA);
 
-    int useBuffer = matrixC->rows <= 1000000;
+    /*
+    Für jede Spalte i in B:
+        Initialisiere Array um errechnete Werte der Reihen zu speichern
+        Für jeden Wert k in i:
+            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von k):
+                v = k*h
+                Falls in i schon Wert für Reihe(h) berechnet:
+                    Addiere v
+                Sonst:
+                    Speichere v in C bei Reihe(h) von Spalte i
+            Setze Spaltenpointer von i auf aktuelle Anzahl Elemente
+    Setze nnz von C auf Anzahl Elemente
+    */
     size_t* rowBuffer;
-    if(useBuffer) {
-        rowBuffer = malloc(sizeof(size_t)*matrixC->rows);
-    }
+    rowBuffer = malloc(sizeof(size_t)*matrixC->rows);
 
     size_t valIndexC = 0;
     //Iterate through columns of matrix B
@@ -98,32 +108,39 @@ void matr_mult_csc_V2(const void *a, const void *b, void *result) {
             size_t numValues = nextColPtrA-currentColPtrA;
             float* resultBuffer = calloc(numValues,sizeof(float));
 
-            size_t resultIndex = 0;
+            size_t resultIndex = currentColPtrA;
+
+            //Align compute index
+            for(;resultIndex & 0xF && resultIndex < nextColPtrA;resultIndex++) {
+                resultBuffer[resultIndex-currentColPtrA] = matrixA->values[resultIndex]*valB;
+            }
+
+
             //Precompute result values using SIMD
-            while(currentColPtrA+(resultIndex+1)*4 < nextColPtrA) {
-                __m128 aVals = _mm_load_ps1((matrixA->values + resultIndex*4));
+            while(resultIndex+4 <= nextColPtrA) {
+                __m128 aVals = _mm_load_ps(matrixA->values + resultIndex);
                 __m128 bVals = _mm_load1_ps(&valB);
                 __m128 result = _mm_mul_ps(aVals,bVals);
 
-                _mm_storeu_ps(resultBuffer+resultIndex,result);
+                _mm_storeu_ps(resultBuffer+resultIndex-currentColPtrA,result);
 
-                resultIndex++;
+                resultIndex+=4;
             }
 
-            
-            int remaining = nextColPtrA-(resultIndex*4);
+            //Allocate rest
+            int remaining = nextColPtrA-resultIndex;
             switch(remaining) {
                 case 1:
-                    resultBuffer[resultIndex] = matrixA->values[resultIndex*4]*valB;
+                    resultBuffer[resultIndex-currentColPtrA] = matrixA->values[resultIndex]*valB;
                     break;
                 case 2:
-                    resultBuffer[resultIndex] = matrixA->values[resultIndex*4]*valB;
-                    resultBuffer[resultIndex+1] = matrixA->values[(resultIndex+1)*4]*valB;
+                    resultBuffer[resultIndex-currentColPtrA] = matrixA->values[resultIndex]*valB;
+                    resultBuffer[resultIndex+1-currentColPtrA] = matrixA->values[resultIndex+1]*valB;
                     break;
                 case 3:
-                    resultBuffer[resultIndex] = matrixA->values[resultIndex*4];
-                    resultBuffer[resultIndex+1] = matrixA->values[(resultIndex+1)*4]*valB;
-                    resultBuffer[resultIndex+2] = matrixA->values[(resultIndex+2)*4]*valB;
+                    resultBuffer[resultIndex-currentColPtrA] = matrixA->values[resultIndex];
+                    resultBuffer[resultIndex+1-currentColPtrA] = matrixA->values[resultIndex+1]*valB;
+                    resultBuffer[resultIndex+2-currentColPtrA] = matrixA->values[resultIndex+2]*valB;
                     break;
                 default:
                     break;
@@ -153,7 +170,9 @@ void matr_mult_csc_V2(const void *a, const void *b, void *result) {
                 matrixC->row_indices[valIndexC] = rowIndexA;
 
                 //Move backwards in list to appropriate position 
-                //if rowIndex is larger than previous element
+                //if rowIndex is larger than previous element (so rows are sorted)
+                // elIndex -> save of valIndexC, propagates backwards with value
+                // numVals -> number of values already added in this column, so we don't go back to a previous column's values
                 size_t elIndex = valIndexC;
                 while(numVals > 0 && matrixC->row_indices[elIndex-1] > rowIndexA) {
                     matrixC->values[elIndex] = matrixC->values[elIndex-1];
