@@ -8,3 +8,4 @@ venv
 Beispiele/*
 tmp/*
 .DS_Store
+perf.*
