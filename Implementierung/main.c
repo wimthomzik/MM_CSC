@@ -220,10 +220,11 @@ int main(int argc, char *argv[]) {
                 cleanup(&matrixA, &matrixB, &resultMatrix, 0);
                 return EXIT_FAILURE;
             }
-
-            free(resultMatrix.col_ptr);
-            free(resultMatrix.row_indices);
-            free(resultMatrix.values);
+            if (i < benchmark - 1) {
+                free_check(resultMatrix.col_ptr);
+                free_check(resultMatrix.row_indices);
+                free_check(resultMatrix.values);
+            }
         }
 
         // Get end time
