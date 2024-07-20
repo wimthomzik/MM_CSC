@@ -138,7 +138,7 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
 
                 __m128 result = _mm_mul_ps(aVals,bVals);
 
-                float resultArr[4];
+                float* resultArr = malloc(sizeof(float)*4);
                 _mm_storeu_ps(resultArr,result);
 
 
@@ -146,6 +146,8 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
                 matrixC->values[rowBuffer[rowA1]-1] += resultArr[1];
                 matrixC->values[rowBuffer[rowA2]-1] += resultArr[2];
                 matrixC->values[rowBuffer[rowA3]-1] += resultArr[3];
+
+                free(resultArr);
             }
 
             /*
