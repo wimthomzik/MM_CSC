@@ -82,7 +82,6 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
     for(size_t colIndex = 0;colIndex < matrixC->cols;colIndex++) {
         size_t currentColPtrB = matrixB->col_ptr[colIndex];
         size_t nextColPtrB = matrixB->col_ptr[colIndex+1];
-
         for(size_t valIndexB = currentColPtrB;valIndexB < nextColPtrB; valIndexB++) {
             size_t rowB = matrixB->row_indices[valIndexB];
             float valB = matrixB->values[valIndexB];
@@ -104,7 +103,7 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
             }
             //Directly use computed values
             //Leads to easier structure and benefits from memory locality
-            for(;valIndexA < nextColPtrA-4; valIndexA+=4) {
+            for(;valIndexA < nextColPtrA-4 && !(valIndexA & 0xF); valIndexA+=4) {
                 size_t rowA = matrixA->row_indices[valIndexA];
                 size_t rowA1 = matrixA->row_indices[valIndexA+1];
                 size_t rowA2 = matrixA->row_indices[valIndexA+2];
@@ -138,7 +137,7 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
 
                 __m128 result = _mm_mul_ps(aVals,bVals);
 
-                float* resultArr = malloc(sizeof(float)*4);
+                float resultArr[4];
                 _mm_storeu_ps(resultArr,result);
 
 
@@ -147,7 +146,6 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
                 matrixC->values[rowBuffer[rowA2]-1] += resultArr[2];
                 matrixC->values[rowBuffer[rowA3]-1] += resultArr[3];
 
-                free(resultArr);
             }
 
             /*
