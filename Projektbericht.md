@@ -1,40 +1,3 @@
-<!--# Überschrift 1
-## Überschrift 2
-### Überschrift 3
-#### Überschrift 4
-
-**Fett** oder __Fett__
-*Kursiv* oder _Kursiv_
-~~Durchgestrichen~~
-
-- Punkt 1
-- Punkt 2
-    - Unterpunkt 2.1
-    - Unterpunkt 2.2
-- Punkt 3
-
-1. Punkt 1
-2. Punkt 2
-    1. Unterpunkt 2.1
-    2. Unterpunkt 2.2
-3. Punkt 3
-   
-[Linktext](http://example.com)
-
-![Alt-Text](http://example.com/bild.jpg)
-
-Dies ist ein `Inline-Code` Beispiel.
-
-
-| Spalte 1 | Spalte 2 |
-|----------|----------|
-| Inhalt 1 | Inhalt 2 |
-| Inhalt 3 | Inhalt 4 |
-
-
----
--->
-
 # Projektbericht
 
 ## 1. Einführung
@@ -312,15 +275,9 @@ Zeige, wie sich die Optimierungen auf die Performanz des Programms ausgewirkt ha
 
 ### 4.1 Teststrategie
 
-Die Teststrategie für das Programm zur Matrizenmultiplikation im CSC-Format umfasst die Verwendung verschiedener Methoden und Tools, um sicherzustellen, dass die Implementierungen korrekt und effizient arbeiten. Hier sind die Hauptaspekte der Teststrategie:
+#### Testmethode
 
-#### Testmethoden
-
-1. **Automatisierte Tests**:
-   - **Skripte**: Es wurden mehrere Python-Skripte erstellt, um die Tests zu automatisieren. Diese Skripte generieren Testmatrizen, führen die Multiplikation durch und vergleichen die Ergebnisse.
-   - **Beispiele**: Es wurden zahlreiche Testbeispiele generiert, um verschiedene Szenarien und Randfälle abzudecken.
-
-2. **Vergleich zwischen Python und C**:
+1. **Vergleich zwischen Python und C**:
    - **Python**: Die Matrizenmultiplikation wurde in Python unter Verwendung von `scipy.sparse` durchgeführt. Diese Ergebnisse dienen als Referenz für die Korrektheit.
    - **C**: Die gleiche Multiplikation wurde mit der C-Implementierung durchgeführt. Die Ergebnisse wurden mit den Python-Ergebnissen verglichen, um sicherzustellen, dass beide übereinstimmen.
 
@@ -363,8 +320,6 @@ Die Teststrategie für das Programm zur Matrizenmultiplikation im CSC-Format umf
    - Die Ergebnisse der C-Implementierung wurden gegen die Python-Referenzergebnisse geprüft.
    - Abweichungen wurden analysiert und behoben, um die Korrektheit der Implementierung sicherzustellen.
 
-Durch diese umfassende Teststrategie konnte sichergestellt werden, dass die Implementierung der Matrizenmultiplikation im CSC-Format korrekt und effizient arbeitet, auch unter extremen Bedingungen und in Randfällen.
-
 ### 4.2 Randfälle
 
 Das Programm wurde daraufhin getestet, wie es mit verschiedenen Randfällen umgeht, die bei der Multiplikation von Matrizen im CSC-Format auftreten können. Hier sind einige der ungewöhnlichen oder extremen Bedingungen, die getestet wurden, sowie die Reaktionen des Programms:
@@ -405,16 +360,34 @@ Das Programm wurde daraufhin getestet, wie es mit verschiedenen Randfällen umge
 - **Erwartetes Verhalten**: Das Programm sollte korrekt alle relevanten Multiplikationen durchführen und die Ergebnisse richtig summieren.
 - **Reaktion des Programms**: Das Programm hat die zufällig verteilten Nicht-Null-Elemente korrekt multipliziert und die Ergebnisse ordnungsgemäß summiert, ohne Fehler oder unerwartete Ergebnisse.
 
-## 5. Performanz
+### 5. Performanz
 
-### 5.1 Performanzanalyse
+### 5.1 Voraussetzungen für die Performanzmessung
+
+Die Performanzmessungen wurden unter den folgenden Voraussetzungen durchgeführt:
+
+- **Server:** Hetzner CX22 V-Server
+- **Prozessor:** XXXGHz
+- **RAM:** 4 GB
+- **Betriebssystem:** Ubuntu 24.04 LTS mit 2 VCPUs
+- **Architektur:** XX Bit
+- **Kernel:** Linux-Kernel XXX
+- **Kompilierung:** GCC XXX mit der Option XXX
+- **Eingabengrößen:** Verschiedene Matrizen mit variierender Größe und Dichte
+- **Wiederholungen:** XX Wiederholungen pro Ausführung
+
+### 5.2 Performanzanalyse
+
 Analysiere die Leistung deines Programms. Welche Metriken wurden gemessen (z.B. Laufzeit, Speicherverbrauch)?
 
-### 5.2 Ergebnisse der Performanztests
+### 5.3 Ergebnisse der Performanztests
+
 Präsentiere die Ergebnisse der Performanztests. Verwende Diagramme und Tabellen, um die Daten übersichtlich darzustellen.
 
-### 5.3 Diskussion der Performanz
+### 5.4 Diskussion der Performanz
+
 Diskutiere die Ergebnisse der Performanztests. Was bedeuten die Ergebnisse für die praktische Anwendung des Programms? Gibt es Bereiche, in denen die Performanz verbessert werden könnte?
+
 
 ## 6. Fazit und Ausblick
 
@@ -434,8 +407,4 @@ Für zukünftige Arbeiten und mögliche Erweiterungen des Programms gibt es mehr
 - **Parallele Verarbeitung**: Die Implementierung könnte durch den Einsatz von parallelen Algorithmen und Multi-Threading weiter verbessert werden. Dies könnte die Berechnungszeit bei großen Matrizen erheblich verkürzen.
 - **Optimierung der Speicherverwaltung**: Weitere Optimierungen der Speicherverwaltung, wie die Verwendung von Speicherpools oder optimierten Speicherallokatoren, könnten die Effizienz steigern und Speicherfragmentierung verhindern.
 - **Unterstützung weiterer Formate**: Die Implementierung könnte erweitert werden, um zusätzliche dünnbesetzte Matrixformate wie COO (Coordinate Format) oder DOK (Dictionary of Keys) zu unterstützen. Dies würde die Flexibilität und Anwendbarkeit des Programms erhöhen.
-- **Automatisierte Testframeworks**: Der Einsatz von automatisierten Testframeworks und kontinuierlicher Integration (CI) könnte den Testprozess weiter verbessern und die Robustheit der Implementierung sicherstellen.
-- **Leistungsanalyse und Profiling**: Detaillierte Leistungsanalysen und Profiling-Tools könnten eingesetzt werden, um Engpässe zu identifizieren und gezielte Optimierungen vorzunehmen.
-- **Benutzerfreundlichkeit**: Die Benutzerfreundlichkeit des Programms könnte durch die Entwicklung einer grafischen Benutzeroberfläche (GUI) oder einer Webschnittstelle verbessert werden, um die Bedienung zu erleichtern.
-
 
