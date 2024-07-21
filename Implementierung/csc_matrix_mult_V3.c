@@ -17,7 +17,6 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
     const csc_matrix *matrixA = (const csc_matrix *)a;
     const csc_matrix *matrixB = (const csc_matrix *)b;
 
-    printf("%zd,%zd\n",matrixA, a);
     csc_matrix *matrixC = (csc_matrix *)result;
 
     // Check if matrix dimensions are compatible for multiplication
@@ -48,18 +47,6 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
         exit(EXIT_FAILURE);
     }
 
-    /*
-    Test case 3:
-    float valuesA[16] = {2,12,4,5,3,7,2,3,6,3,1,7,9,2,6,10};
-    size_t row_indicesA[16] = {0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3};
-    size_t col_ptrA[5] = {0,4,8,12,16};
-
-    float valuesB[26] =
-{6,20,12,1,8,6,3,2,7,3,9,1,6,9,8,7,3,15,11,9,8,5,3,13,1,2}; size_t
-row_indicesB[26] = {0,1,2,3,0,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,2,3}; size_t
-col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
-    */
-
     // csc_to_csr(matrixA);
 
     /*
@@ -79,8 +66,7 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
 
         size_t currentColPtrB = matrixB->col_ptr[colIndex];
         size_t nextColPtrB = matrixB->col_ptr[colIndex + 1];
-        for (size_t valIndexB = currentColPtrB; valIndexB < nextColPtrB;
-             valIndexB++) {
+        for (size_t valIndexB = currentColPtrB; valIndexB < nextColPtrB;valIndexB++) {
             size_t rowB = matrixB->row_indices[valIndexB];
             float valB = matrixB->values[valIndexB];
 
