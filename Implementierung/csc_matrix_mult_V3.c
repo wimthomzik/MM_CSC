@@ -16,6 +16,8 @@
 void matr_mult_csc_V3(const void *a, const void *b, void *result) {
     const csc_matrix *matrixA = (const csc_matrix *)a;
     const csc_matrix *matrixB = (const csc_matrix *)b;
+
+    printf("%zd,%zd\n",matrixA, a);
     csc_matrix *matrixC = (csc_matrix *)result;
 
     // Check if matrix dimensions are compatible for multiplication
@@ -70,17 +72,17 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
     Für jede Spalte i in B:
         Initialisiere Array um errechnete Werte der Reihen zu speichern
         Für jeden Wert k in i:
-            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von
-    k): v = k*h Falls in i schon Wert für Reihe(h) berechnet: Addiere v Sonst:
+            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von k): v = k*h Falls in i schon Wert für Reihe(h) berechnet: Addiere v Sonst:
                     Speichere v in C bei Reihe(h) von Spalte i
             Setze Spaltenpointer von i auf aktuelle Anzahl Elemente
     Setze nnz von C auf Anzahl Elemente
     */
 
-    size_t *rowBuffer = (size_t *)calloc(matrixA->rows, sizeof(size_t));
+    size_t *rowBuffer = (size_t *)calloc(matrixA->rows,sizeof(size_t));
     size_t valIndexC = 0;
     // Iterate through columns of matrix B
     for (size_t colIndex = 0; colIndex < matrixC->cols; colIndex++) {
+
         size_t currentColPtrB = matrixB->col_ptr[colIndex];
         size_t nextColPtrB = matrixB->col_ptr[colIndex + 1];
         for (size_t valIndexB = currentColPtrB; valIndexB < nextColPtrB;
@@ -105,8 +107,7 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
             }
             // Directly use computed values
             // Leads to easier structure and benefits from memory locality
-            for (; valIndexA < nextColPtrA - 4 && !(valIndexA & 0xF);
-                 valIndexA += 4) {
+            for (; valIndexA < nextColPtrA - 4 && !(valIndexA & 0xF);valIndexA += 4) {
                 size_t rowA = matrixA->row_indices[valIndexA];
                 size_t rowA1 = matrixA->row_indices[valIndexA + 1];
                 size_t rowA2 = matrixA->row_indices[valIndexA + 2];
@@ -138,13 +139,14 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
 
                 __m128 result = _mm_mul_ps(aVals, bVals);
 
-                float resultArr[4];
+                float* resultArr = malloc(4*sizeof(float));
                 _mm_storeu_ps(resultArr, result);
 
                 matrixC->values[rowBuffer[rowA] - 1] += resultArr[0];
                 matrixC->values[rowBuffer[rowA1] - 1] += resultArr[1];
                 matrixC->values[rowBuffer[rowA2] - 1] += resultArr[2];
                 matrixC->values[rowBuffer[rowA3] - 1] += resultArr[3];
+                free(resultArr);
             }
 
             /*
@@ -168,6 +170,6 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
         matrixC->col_ptr[colIndex + 1] = valIndexC;
     }
     matrixC->nnz = valIndexC;
-
     free(rowBuffer);
+
 }

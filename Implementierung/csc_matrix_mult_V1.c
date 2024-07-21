@@ -52,17 +52,6 @@ void matr_mult_csc_V1(const void *a, const void *b, void *result) {
     memset(matrixC->values, 0.0, (worstCaseSize) * sizeof(float));
     memset(matrixC->row_indices, 0, (worstCaseSize) * sizeof(size_t));
 
-    /*
-    Test case 3:
-    float valuesA[16] = {2,12,4,5,3,7,2,3,6,3,1,7,9,2,6,10};
-    size_t row_indicesA[16] = {0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3};
-    size_t col_ptrA[5] = {0,4,8,12,16};
-
-    float valuesB[26] =
-{6,20,12,1,8,6,3,2,7,3,9,1,6,9,8,7,3,15,11,9,8,5,3,13,1,2}; size_t
-row_indicesB[26] = {0,1,2,3,0,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,2,3}; size_t
-col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
-    */
 
     /*
     Änderung von V1:
@@ -79,8 +68,7 @@ col_ptrB[8] = {0,4,7,11,15,19,23,26}; Í
     Für jede Spalte i in B:
         Initialisiere Array um errechnete Werte der Reihen zu speichern
         Für jeden Wert k in i:
-            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von
-    k): v = k*h Falls in i schon Wert für Reihe(h) berechnet: Addiere v Sonst:
+            Für jeden Wert h in Spalte j von A (Spaltenindex = Zeilenindex von k): v = k*h Falls in i schon Wert für Reihe(h) berechnet: Addiere v Sonst:
                     Speichere v in C bei Reihe(h) von Spalte i
             Setze Spaltenpointer von i auf aktuelle Anzahl Elemente
     Setze nnz von C auf Anzahl Elemente
