@@ -35,9 +35,9 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
 
     size_t worstCaseSize = (matrixA->nnz) * (matrixB->nnz);
 
-    matrixC->col_ptr = (size_t *)malloc((matrixC->cols + 1) * sizeof(size_t));
-    matrixC->values = (float *)malloc((worstCaseSize) * sizeof(float));
-    matrixC->row_indices = (size_t *)malloc((worstCaseSize) * sizeof(size_t));
+    matrixC->col_ptr = (size_t *)calloc((matrixC->cols + 1), sizeof(size_t));
+    matrixC->values = (float *)calloc((worstCaseSize), sizeof(float));
+    matrixC->row_indices = (size_t *)calloc((worstCaseSize), sizeof(size_t));
 
     if (matrixC->col_ptr == NULL || matrixC->values == NULL ||
         matrixC->row_indices == NULL) {
@@ -45,12 +45,6 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
                 "Failed to allocate memory for result matrix attributes\n");
         exit(EXIT_FAILURE);
     }
-    // Initialize column pointers with 0
-    memset(matrixC->col_ptr, 0, (matrixC->cols + 1) * sizeof(size_t));
-
-    // Initialize values and row pointers with 0 (worst case length)
-    memset(matrixC->values, 0.0, (worstCaseSize) * sizeof(float));
-    memset(matrixC->row_indices, 0, (worstCaseSize) * sizeof(size_t));
 
     /*
     Test case 3:
