@@ -99,7 +99,7 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
                 float res = valA * valB;
 
                 //Save at row no. rowIndexA and column no. colIndex (of B)
-                size_t rowIndexA = matrixA->row_indices[valPtrA]; //TODO: Properly load A row_indices
+                size_t rowIndexA = matrixA->row_indices[valPtrA];
                 /*printf("%f %f\n",valB,valA);*/
 
                 //Check if column position already has a value
