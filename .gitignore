@@ -4,7 +4,6 @@ server_key*
 .idea
 .vscode
 venv
-Beispiele/*
 tmp/*
 .DS_Store
 perf.*
