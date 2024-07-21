@@ -1,5 +1,4 @@
 **/*.out
-**/*.txt
 **/*.dSYM
 server_key*
 .idea
