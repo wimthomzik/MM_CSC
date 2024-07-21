@@ -1,4 +1,5 @@
 #include "csc_matrix_printer.h"
+
 #include <stdio.h>
 
 void printCSCMatrix(const csc_matrix* matrix) {

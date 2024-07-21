@@ -5,4 +5,4 @@
 
 void matr_mult_csc_V2(const void *a, const void *b, void *result);
 
-#endif //CSC_MATRIX_MULT_H_V2
+#endif  // CSC_MATRIX_MULT_H_V2

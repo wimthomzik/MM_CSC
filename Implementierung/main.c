@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-//#include <unistd.h>
+// #include <unistd.h>
 #include "csc_matrix.h"
 #include "csc_matrix_mult_V0.h"
 #include "csc_matrix_mult_V1.h"
@@ -12,8 +12,7 @@
 #include "csc_matrix_mult_V3.h"
 #include "csc_matrix_reader.h"
 #include "csc_matrix_writer.h"
-//#include "csc_matrix_printer.h" //uncomment to use printCSCMatrix
-
+// #include "csc_matrix_printer.h" //uncomment to use printCSCMatrix
 
 // Usage messages
 const char *usage_msg =
@@ -115,7 +114,8 @@ int main(int argc, char *argv[]) {
                 errno = 0;
                 version = strtol(optarg, &endptr, 10);
                 // Check if conversion was successful
-                if (endptr == optarg || errno != 0 || *endptr != '\0' || version < 0) {
+                if (endptr == optarg || errno != 0 || *endptr != '\0' ||
+                    version < 0) {
                     fprintf(stderr, "Invalid Version: %s\n", optarg);
                     print_usage(progName);
                     return EXIT_FAILURE;
@@ -127,10 +127,13 @@ int main(int argc, char *argv[]) {
                     errno = 0;
                     benchmark = strtol(optarg, &endptr, 10);
                     // Check if conversion was successful
-                    if (endptr == optarg || errno != 0 || *endptr != '\0' || benchmark < 3) {
+                    if (endptr == optarg || errno != 0 || *endptr != '\0' ||
+                        benchmark < 3) {
                         if (benchmark < 3) {
                             fprintf(stderr,
-                                    "Invalid Benchmark: Benchmark has minimum of 3, but was: %s\n", optarg);
+                                    "Invalid Benchmark: Benchmark has minimum "
+                                    "of 3, but was: %s\n",
+                                    optarg);
                         } else {
                             fprintf(stderr, "Invalid Benchmark: %s\n", optarg);
                         }
@@ -202,23 +205,23 @@ int main(int argc, char *argv[]) {
 
         for (int i = 0; i < benchmark; i++) {
             // Multiply matrices based on version set by user
-            switch(version) {
-            case 0:
-                matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
-                break;
-            case 1:
-                matr_mult_csc_V1(&matrixA, &matrixB, &resultMatrix);
-                break;
-            case 2:
-                matr_mult_csc_V2(&matrixA, &matrixB, &resultMatrix);
-                break;
-            case 3:
-                matr_mult_csc_V3(&matrixA, &matrixB, &resultMatrix);
-                break;
-            default:
-                fprintf(stderr, "Unknown version: %ld\n", version);
-                cleanup(&matrixA, &matrixB, &resultMatrix, 0);
-                return EXIT_FAILURE;
+            switch (version) {
+                case 0:
+                    matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
+                    break;
+                case 1:
+                    matr_mult_csc_V1(&matrixA, &matrixB, &resultMatrix);
+                    break;
+                case 2:
+                    matr_mult_csc_V2(&matrixA, &matrixB, &resultMatrix);
+                    break;
+                case 3:
+                    matr_mult_csc_V3(&matrixA, &matrixB, &resultMatrix);
+                    break;
+                default:
+                    fprintf(stderr, "Unknown version: %ld\n", version);
+                    cleanup(&matrixA, &matrixB, &resultMatrix, 0);
+                    return EXIT_FAILURE;
             }
             if (i < benchmark - 1) {
                 free_check(resultMatrix.col_ptr);
@@ -247,7 +250,7 @@ int main(int argc, char *argv[]) {
             "used.\n");
     } else {
         // Multiply matrices based on version set by user
-        switch(version) {
+        switch (version) {
             case 0:
                 matr_mult_csc(&matrixA, &matrixB, &resultMatrix);
                 break;
