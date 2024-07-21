@@ -1,7 +1,8 @@
 #include "csc_matrix_writer.h"
+
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 
 int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
@@ -12,7 +13,8 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
 
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        fprintf(stderr, "Failed to open file %s: %s\n", filename, strerror(errno));
+        fprintf(stderr, "Failed to open file %s: %s\n", filename,
+                strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -58,7 +60,7 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
         if (i == matrix->nnz - 1) {
             break;
         }
-        
+
         if (fprintf(file, ",") < 0) {
             fprintf(stderr, "Failed to write row indices to %s\n", filename);
             fclose(file);
@@ -74,13 +76,15 @@ int writeCSCMatrix(const char *filename, const csc_matrix *matrix) {
     // Write column pointers
     for (size_t i = 0; i <= matrix->cols; i++) {
         if (fprintf(file, "%zd", matrix->col_ptr[i]) < 0) {
-            fprintf(stderr, "Failed to write column pointers to %s\n", filename);
+            fprintf(stderr, "Failed to write column pointers to %s\n",
+                    filename);
             fclose(file);
             return EXIT_FAILURE;
         }
         if (i < matrix->cols) {
             if (fprintf(file, ",") < 0) {
-                fprintf(stderr, "Failed to write column pointers to %s\n", filename);
+                fprintf(stderr, "Failed to write column pointers to %s\n",
+                        filename);
                 fclose(file);
                 return EXIT_FAILURE;
             }

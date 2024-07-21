@@ -1,4 +1,5 @@
 #include "csc_matrix_reader.h"
+
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -7,17 +8,15 @@
 
 /*
  * Note:
- * In cases of multiple commas or spaces between values the function will ignore the extra commas and spaces and filter out the values.
- * "1.0,,,,,1.0" will be read as "1.0,1.0".
- * "1.0,     1.0" will be read as "1.0,1.0".
- * The function will also ignore empty lines. This will later result in an error when reading the matrix data and is thereby handled.
+ * In cases of multiple commas or spaces between values the function will ignore
+ * the extra commas and spaces and filter out the values. "1.0,,,,,1.0" will be
+ * read as "1.0,1.0". "1.0,     1.0" will be read as "1.0,1.0". The function
+ * will also ignore empty lines. This will later result in an error when reading
+ * the matrix data and is thereby handled.
  */
 
-//Enum for identifying the data type of the vector
-typedef enum {
-    FLOAT,
-    INT
-} DataType;
+// Enum for identifying the data type of the vector
+typedef enum { FLOAT, INT } DataType;
 
 int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
     char* line = NULL;
@@ -84,7 +83,9 @@ int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
             errno = 0;
             ((float*)(*vec))[count - 1] = strtof(p, &end);
             if (errno == ERANGE || *end != '\0' || p == end) {
-                fprintf(stderr, "Invalid float value or number out of range: '%s'\n", p);
+                fprintf(stderr,
+                        "Invalid float value or number out of range: '%s'\n",
+                        p);
                 free(line);
                 return EXIT_FAILURE;
             }
@@ -92,7 +93,9 @@ int readDynamicLine(FILE* file, void** vec, size_t* size_ptr, DataType type) {
             errno = 0;
             ((size_t*)(*vec))[count - 1] = strtol(p, &end, 10);
             if (errno == ERANGE || *end != '\0' || p == end) {
-                fprintf(stderr, "Invalid integer value or number out of range: '%s'\n", p);
+                fprintf(stderr,
+                        "Invalid integer value or number out of range: '%s'\n",
+                        p);
                 free(line);
                 return EXIT_FAILURE;
             }
@@ -126,7 +129,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
     size_t rows, cols;
     char checkChar;
-    if (sscanf(line, "%zd,%zd%c", &rows, &cols, &checkChar) != 3 || checkChar != '\n') {
+    if (sscanf(line, "%zd,%zd%c", &rows, &cols, &checkChar) != 3 ||
+        checkChar != '\n') {
         fprintf(stderr, "Error: Format of dimensions must be 'int,int\\n'.\n");
         fclose(file);
         return EXIT_FAILURE;
@@ -135,7 +139,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     matrix->cols = cols;
 
     // Read data values
-    int res = readDynamicLine(file, (void**)&matrix->values, &matrix->nnz, FLOAT);
+    int res =
+        readDynamicLine(file, (void**)&matrix->values, &matrix->nnz, FLOAT);
     if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix data values\n");
         fclose(file);
@@ -144,7 +149,8 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
 
     // Read row indices
     size_t row_indices_length;
-    res = readDynamicLine(file, (void**)&matrix->row_indices, &row_indices_length, INT);
+    res = readDynamicLine(file, (void**)&matrix->row_indices,
+                          &row_indices_length, INT);
     if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix row index values\n");
         fclose(file);
@@ -152,16 +158,20 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     }
 
     // Read column pointers
-    res = readDynamicLine(file, (void**)&matrix->col_ptr, &matrix->col_ptr_length, INT);
+    res = readDynamicLine(file, (void**)&matrix->col_ptr,
+                          &matrix->col_ptr_length, INT);
     if (res != EXIT_SUCCESS) {
         fprintf(stderr, "Error reading matrix col ptr values\n");
         fclose(file);
         return res;
     }
 
-    // Check if the number of row indices matches the number of non-zero elements
+    // Check if the number of row indices matches the number of non-zero
+    // elements
     if (row_indices_length != matrix->nnz) {
-        fprintf(stderr, "Error: Number of row indices do not match number of non-zero elements\n");
+        fprintf(stderr,
+                "Error: Number of row indices do not match number of non-zero "
+                "elements\n");
         fclose(file);
         return EXIT_FAILURE;
     }
@@ -169,14 +179,20 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     // Check for extra data in file
     char extraBuffer[10];
     if (fgets(extraBuffer, sizeof(extraBuffer), file) != NULL) {
-        fprintf(stderr, "Error: Extra data found in file after expected matrix data. Extra data.\nHint: This error also occurs if you have too many new lines in you input file.");
+        fprintf(stderr,
+                "Error: Extra data found in file after expected matrix data. "
+                "Extra data.\nHint: This error also occurs if you have too "
+                "many new lines in you input file.");
         fclose(file);
         return EXIT_FAILURE;
     }
 
-    // Check if the number of columns matches the length of the column pointer array
+    // Check if the number of columns matches the length of the column pointer
+    // array
     if (matrix->cols != matrix->col_ptr_length - 1) {
-        fprintf(stderr, "Error: Number of columns do not match the length of the column pointer array\n");
+        fprintf(stderr,
+                "Error: Number of columns do not match the length of the "
+                "column pointer array\n");
         fclose(file);
         return EXIT_FAILURE;
     }
@@ -185,7 +201,9 @@ int readCSCMatrix(const char* filename, csc_matrix* matrix) {
     if (matrix->nnz == 0) {
         for (size_t i = 0; i < matrix->col_ptr_length; ++i) {
             if (matrix->col_ptr[i] != 0) {
-                fprintf(stderr, "Error: Expected all zero column pointers for an all-zero matrix.\n");
+                fprintf(stderr,
+                        "Error: Expected all zero column pointers for an "
+                        "all-zero matrix.\n");
                 fclose(file);
                 return EXIT_FAILURE;
             }

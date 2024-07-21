@@ -5,4 +5,4 @@
 
 int writeCSCMatrix(const char *filename, const csc_matrix *matrix);
 
-#endif //CSC_MATRIX_WRITER_H
+#endif  // CSC_MATRIX_WRITER_H
