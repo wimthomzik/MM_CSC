@@ -6,11 +6,6 @@
 #include <string.h>
 
 /*Include allowed intrinsics*/
-#include <emmintrin.h>
-#include <nmmintrin.h>
-#include <pmmintrin.h>
-#include <smmintrin.h>
-#include <tmmintrin.h>
 #include <xmmintrin.h>
 
 void matr_mult_csc(const void *a, const void *b, void *result) {
@@ -48,19 +43,6 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
     }
 
     /*
-    Test case 3:
-    float valuesA[16] = {2,12,4,5,3,7,2,3,6,3,1,7,9,2,6,10};
-    size_t row_indicesA[16] = {0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3};
-    size_t col_ptrA[5] = {0,4,8,12,16};
-
-    float valuesB[26] =
-    {6,20,12,1,8,6,3,2,7,3,9,1,6,9,8,7,3,15,11,9,8,5,3,13,1,2}; size_t
-    row_indicesB[26] = {0,1,2,3,0,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,0,2,3};
-    size_t col_ptrB[8] = {0,4,7,11,15,19,23,26};
-
-    */
-
-    /*
     Pseudocode:
 
     Für jede Spalte i in B:
@@ -73,22 +55,15 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
     size_t valIndexC = 0;
     // Iterate through columns of matrix B
     for (size_t colIndex = 1; colIndex <= matrixC->cols; colIndex++) {
+        
         // Iterate through values in current column
         for (size_t valIndex = matrixB->col_ptr[colIndex - 1];
              valIndex < matrixB->col_ptr[colIndex]; valIndex++) {
             float valB = matrixB->values[valIndex];
-            /*printf("%d %d:\n",valIndex,colIndex-1);*/
-            // Iterate through corresponding values in A
-            //  For every value in the column, we check if there are
-            //  values in the column of A, which corresponds to the row index
-            //  of our value in B. This is the only column said value will
-            //  interact with in the process of the multiplication. If there is
-            //  such a non-zero value, we multiply them and add the result to C
-            //  at the point [rowIndex of A value;column Index of B value]
 
             // Get pointer to column of A
             size_t colPtrA = matrixB->row_indices[valIndex];
-            /*printf("%d:\n",colPtrA);*/
+            
             // Iterate through column
             for (size_t valPtrA = matrixA->col_ptr[colPtrA];
                  valPtrA < matrixA->col_ptr[colPtrA + 1]; valPtrA++) {
@@ -99,7 +74,6 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
 
                 // Save at row no. rowIndexA and column no. colIndex (of B)
                 size_t rowIndexA = matrixA->row_indices[valPtrA];
-                /*printf("%f %f\n",valB,valA);*/
 
                 // Check if column position already has a value
                 if (numVals != 0) {
@@ -125,11 +99,6 @@ void matr_mult_csc(const void *a, const void *b, void *result) {
                 matrixC->row_indices[valIndexC] = rowIndexA;
 
                 // Move backwards in list to appropriate position
-                // if rowIndex is larger than previous element (so rows are
-                // sorted)
-                //  elIndex -> save of valIndexC, propagates backwards with
-                //  value numVals -> number of values already added in this
-                //  column, so we don't go back to a previous column's values
                 size_t elIndex = valIndexC;
                 while (numVals > 0 &&
                        matrixC->row_indices[elIndex - 1] > rowIndexA) {

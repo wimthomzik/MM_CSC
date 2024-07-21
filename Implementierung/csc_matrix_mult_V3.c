@@ -6,11 +6,6 @@
 #include <string.h>
 
 /*Include allowed intrinsics*/
-#include <emmintrin.h>
-#include <nmmintrin.h>
-#include <pmmintrin.h>
-#include <smmintrin.h>
-#include <tmmintrin.h>
 #include <xmmintrin.h>
 
 void matr_mult_csc_V3(const void *a, const void *b, void *result) {
@@ -46,8 +41,6 @@ void matr_mult_csc_V3(const void *a, const void *b, void *result) {
                 "Failed to allocate memory for result matrix attributes\n");
         exit(EXIT_FAILURE);
     }
-
-    // csc_to_csr(matrixA);
 
     /*
     Für jede Spalte i in B:
